@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Aulas | Meu PDI{% endblock %}{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <div class="page-heading study-heading"><div><span class="eyebrow">Unidades de aprendizado</span><h1>Conteúdos</h1><p>Registre conteúdo, dúvidas, resumo e aplicação prática.</p></div><a class="btn btn-primary" href="{% url 'estudos:aula_criar' %}"><i class="bi bi-plus-lg me-2"></i>Novo conteúdo</a></div>
+  {% include "estudos/_nav.html" %}
+  <section class="lesson-grid">
+    {% for aula in aulas %}
+      <article class="content-card lesson-card"><div class="lesson-number">{{ aula.numero|stringformat:"02d" }}</div><div class="lesson-content"><span>{{ aula.disciplina.curso.nome }} · {{ aula.disciplina.nome }}</span><h2><a href="{% url 'estudos:aula_detalhe' aula.id %}">{{ aula.titulo }}</a></h2><p>{{ aula.descricao|default:"Sem descrição."|truncatechars:100 }}</p><div><span><i class="bi bi-calendar3"></i>{{ aula.data|date:"d/m/Y" }}</span><span><i class="bi bi-clock"></i>{{ aula.duracao_estudada }} min</span><span class="badge-soft status-{{ aula.status }}">{{ aula.get_status_display }}</span></div></div><a class="icon-button" href="{% url 'estudos:aula_editar' aula.id %}" aria-label="Editar aula"><i class="bi bi-pencil"></i></a></article>
+    {% empty %}<div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-play-circle"></i></span><strong>Nenhuma aula registrada</strong><p>Cadastre uma disciplina e depois suas aulas.</p></div>{% endfor %}
+  </section>
+{% endblock %}

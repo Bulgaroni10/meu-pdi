@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Certificações | Meu PDI{% endblock %}
+{% block topbar_title %}Certificações{% endblock %}
+
+{% block content %}
+  <div class="page-heading certification-heading">
+    <div><span class="eyebrow">Validação profissional</span><h1>Minhas certificações</h1><p>Planeje a preparação, acompanhe a prova e registre o resultado das suas certificações.</p></div>
+    <a class="btn btn-primary" href="{% url 'certificacoes:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova certificação</a>
+  </div>
+  <form class="filter-bar" method="get"><div class="filter-search"><i class="bi bi-search"></i><input type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar por nome, código ou instituição"></div><select name="status" aria-label="Filtrar por status"><option value="">Todos os status</option>{% for valor, rotulo in status_choices %}<option value="{{ valor }}" {% if filtros.status == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select><button class="btn btn-light" type="submit">Filtrar</button></form>
+
+  <section class="certification-grid">
+    {% for certificacao in certificacoes %}
+      <article class="content-card certification-card">
+        <div class="certification-top"><span class="certification-logo"><i class="bi bi-award"></i></span><span class="badge-soft status-{{ certificacao.status }}">{{ certificacao.get_status_display }}</span></div>
+        <div><span class="eyebrow">{{ certificacao.instituicao }}{% if certificacao.codigo %} · {{ certificacao.codigo }}{% endif %}</span><h2><a href="{% url 'certificacoes:detalhe' certificacao.id %}">{{ certificacao.nome }}</a></h2></div>
+        <div class="project-progress"><div><span>Preparação</span><strong>{{ certificacao.progresso }}%</strong></div><div class="progress"><div class="progress-bar" style="width: {{ certificacao.progresso }}%"></div></div></div>
+        <footer>{% if certificacao.data_prova %}<span><i class="bi bi-calendar-event"></i>{{ certificacao.data_prova|date:"d/m/Y" }}</span>{% else %}<span><i class="bi bi-calendar"></i>Prova não agendada</span>{% endif %}<span><i class="bi bi-flag"></i>{{ certificacao.get_prioridade_display }}</span>{% if certificacao.nota %}<span><i class="bi bi-graph-up"></i>Nota {{ certificacao.nota }}</span>{% endif %}</footer>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state certification-empty"><span class="empty-icon"><i class="bi bi-award"></i></span><strong>Nenhuma certificação planejada</strong><p>Cadastre a próxima credencial que apoia seu objetivo profissional.</p><a class="btn btn-primary" href="{% url 'certificacoes:criar' %}">Planejar certificação</a></div>
+    {% endfor %}
+  </section>
+{% endblock %}

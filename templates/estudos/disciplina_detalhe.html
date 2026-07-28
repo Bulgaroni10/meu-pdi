@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ disciplina.nome }} | Meu PDI{% endblock %}
+{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'estudos:cursos' %}">Cursos</a></li><li class="breadcrumb-item"><a href="{% url 'estudos:curso_detalhe' disciplina.curso.id %}">{{ disciplina.curso.nome|truncatechars:35 }}</a></li><li class="breadcrumb-item active">{{ disciplina.nome|truncatechars:40 }}</li></ol></nav>
+  <header class="study-detail-head">
+    <div><span class="eyebrow">{{ disciplina.curso.nome }}</span><h1>{{ disciplina.nome }}</h1><p>{{ disciplina.descricao|default:"Organize abaixo os quatro conteúdos desta disciplina." }}</p></div>
+    <div class="detail-actions">
+      <a class="btn btn-light" href="{% url 'estudos:disciplina_editar' disciplina.id %}"><i class="bi bi-pencil me-2"></i>Editar</a>
+      <a class="btn btn-light" href="{% url 'estudos:confirmar_exclusao' 'disciplina' disciplina.id %}"><i class="bi bi-trash me-2"></i>Excluir</a>
+      <a class="btn btn-primary" href="{% url 'estudos:aula_criar' %}"><i class="bi bi-plus-lg me-2"></i>Novo conteúdo</a>
+    </div>
+  </header>
+  {% include "estudos/_nav.html" %}
+  <section class="lesson-grid">
+    {% for aula in disciplina.aulas.all %}
+      <article class="content-card lesson-card">
+        <div class="lesson-number">{{ aula.numero|stringformat:"02d" }}</div>
+        <div class="lesson-content"><span>Conteúdo {{ aula.numero }}</span><h2><a href="{% url 'estudos:aula_detalhe' aula.id %}">{{ aula.titulo }}</a></h2><p>{{ aula.descricao|default:"Sem descrição."|truncatechars:120 }}</p><div><span class="badge-soft status-{{ aula.status }}">{{ aula.get_status_display }}</span></div></div>
+        <a class="icon-button" href="{% url 'estudos:aula_editar' aula.id %}" aria-label="Editar conteúdo"><i class="bi bi-pencil"></i></a>
+      </article>
+    {% empty %}<div class="content-card empty-state study-full-empty"><strong>Nenhum conteúdo cadastrado</strong><p>Adicione os conteúdos desta disciplina.</p></div>{% endfor %}
+  </section>
+{% endblock %}

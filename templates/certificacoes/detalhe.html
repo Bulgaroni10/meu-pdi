@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ certificacao.nome }} | Meu PDI{% endblock %}
+{% block topbar_title %}Certificações{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'certificacoes:lista' %}">Certificações</a></li><li class="breadcrumb-item active">{{ certificacao.codigo|default:certificacao.nome }}</li></ol></nav>
+  <header class="certification-detail-header">
+    <div><div class="card-badges"><span class="badge-soft status-{{ certificacao.status }}">{{ certificacao.get_status_display }}</span><span class="badge-soft priority-{{ certificacao.prioridade }}">{{ certificacao.get_prioridade_display }}</span></div><span class="eyebrow certification-provider">{{ certificacao.instituicao }}{% if certificacao.codigo %} · {{ certificacao.codigo }}{% endif %}</span><h1>{{ certificacao.nome }}</h1></div>
+    <div class="detail-actions"><a class="btn btn-light" href="{% url 'certificacoes:editar' certificacao.id %}"><i class="bi bi-pencil me-2"></i>Editar</a><form method="post" action="{% url 'certificacoes:arquivar' certificacao.id %}">{% csrf_token %}<button class="btn btn-light" type="submit"><i class="bi bi-archive me-2"></i>Arquivar</button></form></div>
+  </header>
+
+  <section class="certification-summary">
+    <article class="content-card certification-progress-panel"><div class="progress-ring" style="--progress: {{ certificacao.progresso }}"><span>{{ certificacao.progresso }}%</span></div><div><span class="eyebrow">Preparação</span><h2>{% if certificacao.status == "aprovada" %}Certificação conquistada{% elif certificacao.data_prova %}Prova em {{ certificacao.data_prova|date:"d/m/Y" }}{% else %}Prova ainda não agendada{% endif %}</h2><p>{% if certificacao.dias_ate_prova != None %}{% if certificacao.dias_ate_prova >= 0 %}Faltam {{ certificacao.dias_ate_prova }} dias.{% else %}Data da prova já passou; registre o resultado.{% endif %}{% else %}Defina uma data quando estiver confortável com o plano de estudos.{% endif %}</p></div></article>
+    <article class="content-card certification-stat"><i class="bi bi-cash-coin"></i><span>Custo previsto</span><strong>R$ {{ certificacao.custo_previsto }}</strong></article>
+    <article class="content-card certification-stat"><i class="bi bi-graph-up-arrow"></i><span>Nota obtida</span><strong>{{ certificacao.nota|default:"—" }}</strong></article>
+  </section>
+
+  <div class="certification-detail-grid">
+    <section class="content-card certification-info">
+      <div class="card-heading"><div><span class="eyebrow">Planejamento</span><h2>Informações da certificação</h2></div></div>
+      <dl><div><dt>Início da preparação</dt><dd>{{ certificacao.data_inicio|date:"d/m/Y" }}</dd></div><div><dt>Data da prova</dt><dd>{{ certificacao.data_prova|date:"d/m/Y"|default:"Não agendada" }}</dd></div><div><dt>Resultado</dt><dd>{{ certificacao.data_resultado|date:"d/m/Y"|default:"Pendente" }}</dd></div><div><dt>Validade</dt><dd>{{ certificacao.data_validade|date:"d/m/Y"|default:"Não informada" }}</dd></div><div><dt>Custo real</dt><dd>{% if certificacao.custo_real != None %}R$ {{ certificacao.custo_real }}{% else %}Não informado{% endif %}</dd></div><div><dt>Trilha</dt><dd>{{ certificacao.trilha|default:"Não vinculada" }}</dd></div><div><dt>Objetivo</dt><dd>{{ certificacao.objetivo|default:"Não vinculado" }}</dd></div><div><dt>Certificado</dt><dd>{% if certificacao.certificado %}<a href="{% url 'biblioteca:abrir' certificacao.certificado.id %}" target="_blank" rel="noopener">Abrir PDF</a>{% else %}Não anexado{% endif %}</dd></div></dl>
+    </section>
+    <aside class="certification-sidebar">
+      <section class="content-card"><span class="eyebrow">Observações</span><h2>Notas de preparação</h2><p>{{ certificacao.observacoes|default:"Nenhuma observação registrada."|linebreaksbr }}</p></section>
+      {% if certificacao.url_oficial or certificacao.url_agendamento %}<section class="content-card project-links">{% if certificacao.url_oficial %}<a href="{{ certificacao.url_oficial }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Página oficial</a>{% endif %}{% if certificacao.url_agendamento %}<a href="{{ certificacao.url_agendamento }}" target="_blank" rel="noopener"><i class="bi bi-calendar-check"></i> Agendamento</a>{% endif %}</section>{% endif %}
+    </aside>
+  </div>
+{% endblock %}

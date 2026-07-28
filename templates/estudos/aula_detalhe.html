@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ aula.titulo }} | Meu PDI{% endblock %}{% block topbar_title %}Aulas{% endblock %}
+{% block content %}
+  <header class="study-detail-head"><div><span class="eyebrow">{{ aula.disciplina.curso.nome }} · {{ aula.disciplina.nome }}</span><h1>{{ aula.titulo }}</h1><p>Conteúdo {{ aula.numero }} · {{ aula.data|date:"d/m/Y" }} · {{ aula.get_dificuldade_display }}</p></div><div class="detail-actions"><a class="btn btn-light" href="{% url 'anotacoes:workspace_aula' aula.id %}"><i class="bi bi-file-earmark-pdf me-2"></i>PDF e anotações</a><a class="btn btn-primary" href="{% url 'estudos:aula_editar' aula.id %}"><i class="bi bi-pencil me-2"></i>Editar</a><a class="btn btn-light" href="{% url 'estudos:confirmar_exclusao' 'aula' aula.id %}"><i class="bi bi-trash me-2"></i>Excluir</a></div></header>
+  {% include "estudos/_nav.html" %}
+  <div class="lesson-detail-grid">
+    <section class="content-card detail-section"><span class="eyebrow">Conteúdo</span><h2>Descrição</h2><p>{{ aula.descricao|default:"Nenhuma descrição registrada."|linebreaksbr }}</p></section>
+    <section class="content-card detail-section"><span class="eyebrow">Síntese</span><h2>Resumo</h2><p>{{ aula.resumo|default:"Resumo ainda não registrado."|linebreaksbr }}</p></section>
+    <section class="content-card detail-section"><span class="eyebrow">Pontos em aberto</span><h2>Dúvidas</h2><p>{{ aula.duvidas|default:"Nenhuma dúvida registrada."|linebreaksbr }}</p></section>
+    <section class="content-card detail-section"><span class="eyebrow">Transferência para a prática</span><h2>Aplicação prática</h2><p>{{ aula.aplicacao_pratica|default:"Aplicação prática ainda não registrada."|linebreaksbr }}</p></section>
+  </div>
+{% endblock %}

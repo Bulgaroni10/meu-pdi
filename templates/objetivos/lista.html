@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Objetivos | Meu PDI{% endblock %}
+{% block topbar_title %}Objetivos{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Objetivos</li>
+    </ol>
+  </nav>
+
+  <div class="page-heading objective-heading">
+    <div>
+      <span class="eyebrow">Direção e intenção</span>
+      <h1>Meus objetivos</h1>
+      <p>Defina resultados claros e acompanhe o que realmente move sua evolução.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'objetivos:criar' %}">
+      <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Novo objetivo
+    </a>
+  </div>
+
+  <section class="objective-summary" aria-label="Resumo dos objetivos">
+    <article><span>Ativos</span><strong>{{ resumo.ativos }}</strong><i class="bi bi-lightning-charge"></i></article>
+    <article><span>Progresso médio</span><strong>{{ resumo.progresso_medio }}%</strong><i class="bi bi-graph-up"></i></article>
+    <article><span>Concluídos</span><strong>{{ resumo.concluidos }}</strong><i class="bi bi-check2-circle"></i></article>
+    <article class="{% if resumo.atrasados %}has-alert{% endif %}"><span>Atrasados</span><strong>{{ resumo.atrasados }}</strong><i class="bi bi-calendar-x"></i></article>
+  </section>
+
+  <section class="filter-panel">
+    <form method="get"
+          hx-get="{% url 'objetivos:lista' %}"
+          hx-target="#objectiveResults"
+          hx-push-url="true"
+          hx-trigger="change delay:150ms, keyup changed delay:450ms from:input[type='search']">
+      <div class="filter-grid">
+        <div class="form-field filter-search">
+          <label for="{{ filtros_form.q.id_for_label }}">{{ filtros_form.q.label }}</label>
+          <div class="input-with-icon"><i class="bi bi-search"></i>{{ filtros_form.q }}</div>
+        </div>
+        <div class="form-field"><label for="{{ filtros_form.status.id_for_label }}">Status</label>{{ filtros_form.status }}</div>
+        <div class="form-field"><label for="{{ filtros_form.categoria.id_for_label }}">Categoria</label>{{ filtros_form.categoria }}</div>
+        <div class="form-field"><label for="{{ filtros_form.prioridade.id_for_label }}">Prioridade</label>{{ filtros_form.prioridade }}</div>
+        <div class="form-field"><label for="{{ filtros_form.prazo.id_for_label }}">Prazo</label>{{ filtros_form.prazo }}</div>
+        <div class="form-field"><label for="{{ filtros_form.ordenacao.id_for_label }}">Ordenar</label>{{ filtros_form.ordenacao }}</div>
+      </div>
+      <div class="filter-footer">
+        <label class="check-field">{{ filtros_form.arquivados }} <span>Mostrar arquivados</span></label>
+        <div>
+          <a class="btn btn-sm btn-light" href="{% url 'objetivos:lista' %}">Limpar filtros</a>
+          <button class="btn btn-sm btn-primary" type="submit">Aplicar filtros</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <div id="objectiveResults">
+    {% include "objetivos/_lista_resultados.html" %}
+  </div>
+{% endblock %}

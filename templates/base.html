@@ -1,0 +1,178 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Meu PDI — desenvolvimento pessoal e profissional orientado por evidências.">
+  <title>{% block title %}Meu PDI{% endblock %}</title>
+  <script>
+    (() => {
+      const saved = localStorage.getItem("meu-pdi-theme");
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.bsTheme =
+        saved === "dark" || (!saved && systemDark) ? "dark" : "light";
+    })();
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/app.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body{% if PUBLIC_DEMO_MODE %} class="public-demo-mode"{% endif %}>
+  <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+  {% if PUBLIC_DEMO_MODE %}
+    <div class="demo-mode-banner" role="status">
+      <i class="bi bi-eye"></i>
+      Demonstração pública somente leitura — dados ilustrativos, sem informações pessoais.
+    </div>
+  {% endif %}
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-brand">
+        <a href="{% url 'core:dashboard' %}" class="brand-mark" aria-label="Meu PDI — início">
+          <span class="brand-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+          <span class="brand-copy">
+            <strong>Meu PDI</strong>
+            <small>Evolução com propósito</small>
+          </span>
+        </a>
+        <button class="icon-button d-none d-lg-inline-flex" type="button" id="sidebarCollapse"
+                aria-label="Recolher menu" aria-controls="sidebar" aria-expanded="true">
+          <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item {% if request.resolver_match.namespace == 'core' %}active{% endif %}"
+           href="{% url 'core:dashboard' %}">
+          <i class="bi bi-grid-1x2-fill" aria-hidden="true"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <p class="nav-section">Meu PDI</p>
+        <a class="nav-item {% if request.resolver_match.namespace == 'objetivos' %}active{% endif %}"
+           href="{% url 'objetivos:lista' %}">
+          <i class="bi bi-bullseye" aria-hidden="true"></i><span>Objetivos</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.namespace == 'roadmap' %}active{% endif %}"
+           href="{% url 'roadmap:lista' %}">
+          <i class="bi bi-signpost-split" aria-hidden="true"></i><span>Roadmap</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.app_name == 'competencias' %}active{% endif %}" href="{% url 'competencias:lista' %}">
+          <i class="bi bi-diagram-3" aria-hidden="true"></i><span>Competências</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.app_name == 'revisoes' %}active{% endif %}" href="{% url 'revisoes:lista' %}">
+          <i class="bi bi-arrow-repeat" aria-hidden="true"></i><span>Revisões</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.app_name == 'indicadores' %}active{% endif %}" href="{% url 'indicadores:painel' %}">
+          <i class="bi bi-bar-chart-line" aria-hidden="true"></i><span>Indicadores</span>
+        </a>
+
+        <p class="nav-section">Aprendizado</p>
+        <a class="nav-item {% if request.resolver_match.namespace == 'estudos' %}active{% endif %}"
+           href="{% url 'estudos:inicio' %}">
+          <i class="bi bi-journal-bookmark" aria-hidden="true"></i><span>Estudos</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.app_name == 'certificacoes' %}active{% endif %}" href="{% url 'certificacoes:lista' %}">
+          <i class="bi bi-award" aria-hidden="true"></i><span>Certificações</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.namespace == 'anotacoes' %}active{% endif %}"
+           href="{% url 'anotacoes:lista' %}">
+          <i class="bi bi-pencil-square" aria-hidden="true"></i><span>Anotações</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.namespace == 'biblioteca' %}active{% endif %}"
+           href="{% url 'biblioteca:lista' %}">
+          <i class="bi bi-collection" aria-hidden="true"></i><span>Biblioteca</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.app_name == 'projetos' %}active{% endif %}" href="{% url 'projetos:lista' %}">
+          <i class="bi bi-kanban" aria-hidden="true"></i><span>Projetos</span>
+        </a>
+
+        <p class="nav-section">Conta</p>
+        <a class="nav-item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}"
+           href="{% url 'usuarios:perfil' %}">
+          <i class="bi bi-person-gear" aria-hidden="true"></i><span>Perfil</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="progress-note">
+          <div class="d-flex justify-content-between">
+            <span>MVP pessoal</span><strong>100%</strong>
+          </div>
+          <div class="progress mt-2" role="progressbar" aria-label="MVP pessoal concluído"
+               aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
+    <div class="app-main">
+      <header class="topbar">
+        <button class="icon-button d-lg-none" id="mobileMenu" type="button"
+                aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+        <div class="topbar-context">
+          <span class="eyebrow">Plano de desenvolvimento</span>
+          <strong>{% block topbar_title %}Visão geral{% endblock %}</strong>
+        </div>
+        <form class="topbar-search d-none d-md-flex" method="get" action="{% url 'core:busca' %}">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <input id="globalSearchInput" type="search" name="q" value="{% if request.resolver_match.url_name == 'busca' %}{{ request.GET.q }}{% endif %}" placeholder="Buscar no PDI" aria-label="Buscar em todo o PDI">
+          <kbd>/</kbd>
+        </form>
+        <div class="topbar-actions">
+          <a class="icon-button d-md-none" href="{% url 'core:busca' %}" aria-label="Abrir busca"><i class="bi bi-search"></i></a>
+          <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema">
+            <i class="bi bi-moon-stars" aria-hidden="true"></i>
+          </button>
+          <div class="dropdown">
+            <a class="user-menu text-decoration-none" href="{% url 'usuarios:perfil' %}"
+               aria-label="Abrir meu perfil">
+              <span class="avatar">{{ request.user.get_short_name|slice:":1"|upper }}</span>
+              <span class="user-copy d-none d-sm-flex">
+                <strong>{{ request.user.get_short_name }}</strong>
+                <small>{{ request.user.cargo_atual|default:"Meu perfil" }}</small>
+              </span>
+              <i class="bi bi-person-gear" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-content" id="conteudo-principal" tabindex="-1">
+        {% if messages %}
+          <div class="messages" aria-live="polite">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  {% if PUBLIC_DEMO_MODE %}
+    <script>
+      document.querySelectorAll('form[method="post"] button').forEach((button) => {
+        button.disabled = true;
+        button.title = "A demonstração pública é somente leitura";
+      });
+    </script>
+  {% endif %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ anotacao.titulo }} | Meu PDI{% endblock %}{% block topbar_title %}Editor de anotação{% endblock %}
+{% block extra_head %}<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">{% endblock %}
+{% block content %}
+  <header class="note-editor-head"><div><span class="eyebrow">{{ anotacao.aula.disciplina.nome }} · {{ anotacao.aula.titulo }}</span><input id="noteTitle" value="{{ anotacao.titulo }}" aria-label="Título da anotação"></div><div class="save-status" id="saveStatus"><i class="bi bi-check2-circle"></i><span>Salvo</span></div></header>
+  <div class="note-workspace">
+    <section class="pdf-editor-panel">{% if material %}<iframe id="pdfFrame" title="PDF da aula" src="{% url 'biblioteca:abrir' material.id %}#page={{ anotacao.pagina_pdf|default:1 }}&view=FitH"></iframe>{% else %}<div class="empty-state"><strong>Sem PDF nesta aula</strong><a class="btn btn-light" href="{% url 'biblioteca:upload' %}?aula={{ anotacao.aula.id }}">Anexar PDF</a></div>{% endif %}</section>
+    <section class="rich-note-panel"><div class="note-meta-bar"><label>Página <input id="notePage" type="number" min="1" value="{{ anotacao.pagina_pdf|default:"" }}"></label><span>Versão <strong id="versionNumber">{{ anotacao.versao_atual }}</strong></span></div><div id="editor">{{ anotacao.conteudo_html|safe }}</div></section>
+    <aside class="version-panel"><span class="eyebrow">Histórico</span><h2>Versões</h2>{% for versao in anotacao.versoes.all %}<div class="version-item"><div><strong>Versão {{ versao.numero }}</strong><small>{{ versao.created_at|date:"d/m H:i" }}</small></div>{% if versao.numero != anotacao.versao_atual %}<form method="post" action="{% url 'anotacoes:restaurar' anotacao.id versao.id %}">{% csrf_token %}<button type="submit" title="Restaurar versão"><i class="bi bi-arrow-counterclockwise"></i></button></form>{% endif %}</div>{% endfor %}</aside>
+  </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+const quill=new Quill("#editor",{theme:"snow",modules:{toolbar:[[{"header":[1,2,3,false]}],["bold","italic","underline","strike"],[{"list":"ordered"},{"list":"bullet"}],["blockquote","code-block","link"],["clean"]]}});
+const statusEl=document.getElementById("saveStatus"), titleEl=document.getElementById("noteTitle"), pageEl=document.getElementById("notePage"); let version={{ anotacao.versao_atual }}, timer;
+function cookie(name){return document.cookie.split("; ").find(v=>v.startsWith(name+"="))?.split("=")[1]||"";}
+async function save(){statusEl.className="save-status saving";statusEl.querySelector("span").textContent="Salvando...";const response=await fetch("{% url 'anotacoes:autosave' anotacao.id %}",{method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":decodeURIComponent(cookie("csrftoken"))},body:JSON.stringify({titulo:titleEl.value,conteudo_html:quill.root.innerHTML,pagina:pageEl.value,versao:version})});const data=await response.json();if(response.ok){version=data.versao;document.getElementById("versionNumber").textContent=version;statusEl.className="save-status";statusEl.querySelector("span").textContent="Salvo";}else{statusEl.className="save-status error";statusEl.querySelector("span").textContent=data.erro||"Erro ao salvar";}}
+function schedule(){clearTimeout(timer);statusEl.querySelector("span").textContent="Alterações pendentes";timer=setTimeout(save,1200);}
+quill.on("text-change",schedule);titleEl.addEventListener("input",schedule);pageEl.addEventListener("change",()=>{const frame=document.getElementById("pdfFrame");if(frame&&pageEl.value)frame.src=frame.src.split("#")[0]+"#page="+pageEl.value+"&view=FitH";schedule();});
+</script>
+{% endblock %}

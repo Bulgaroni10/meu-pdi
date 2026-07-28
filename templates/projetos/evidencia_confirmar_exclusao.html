@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Excluir evidência | Meu PDI{% endblock %}
+{% block topbar_title %}Projetos{% endblock %}
+{% block content %}
+  <section class="content-card confirmation-card narrow-page">
+    <span class="confirmation-icon"><i class="bi bi-trash"></i></span>
+    <h1>Excluir evidência?</h1>
+    <p>A evidência <strong>{{ evidencia.titulo }}</strong> e sua imagem serão removidas. Se ela estiver ligada a uma avaliação de competência, a exclusão será bloqueada.</p>
+    <form method="post" action="{% url 'projetos:evidencia_excluir' projeto.id evidencia.id %}" class="confirmation-actions">
+      {% csrf_token %}
+      <a class="btn btn-light" href="{% url 'projetos:detalhe' projeto.id %}">Cancelar</a>
+      <button class="btn btn-danger" type="submit">Excluir definitivamente</button>
+    </form>
+  </section>
+{% endblock %}

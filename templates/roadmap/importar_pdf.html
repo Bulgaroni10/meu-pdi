@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Criar roadmap por PDF | Meu PDI{% endblock %}
+{% block topbar_title %}Importar PDF{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'roadmap:lista' %}">Roadmaps</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Importar PDF</li>
+    </ol>
+  </nav>
+
+  <div class="import-layout">
+    <section class="import-intro">
+      <span class="eyebrow">Leitura local</span>
+      <h1>Transforme um PDF em roadmap</h1>
+      <p>O arquivo é processado neste computador. O sistema identifica a estrutura do conteúdo e cria fases, etapas e evidências para você revisar.</p>
+      <div class="import-steps">
+        <div><span>1</span><div><strong>Envie o PDF</strong><small>Material de estudo, ementa, guia ou plano.</small></div></div>
+        <div><span>2</span><div><strong>Leitura automática</strong><small>Títulos e tópicos são organizados localmente.</small></div></div>
+        <div><span>3</span><div><strong>Roadmap na tela</strong><small>O rascunho aparece pronto para revisão.</small></div></div>
+      </div>
+      <div class="local-processing-note">
+        <i class="bi bi-shield-lock"></i>
+        <span>Seu PDF não é enviado para inteligência artificial ou serviço externo.</span>
+      </div>
+    </section>
+
+    <section class="content-card import-card">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+        <label class="pdf-dropzone{% if form.pdf.errors %} has-error{% endif %}" for="{{ form.pdf.id_for_label }}">
+          <span class="pdf-upload-icon"><i class="bi bi-file-earmark-pdf"></i></span>
+          <strong id="pdfFileName">Clique para escolher o PDF</strong>
+          <small>Texto selecionável · máximo de 15 MB · até 250 páginas</small>
+          {{ form.pdf }}
+        </label>
+        {% for error in form.pdf.errors %}<div class="invalid-feedback d-block mt-2">{{ error }}</div>{% endfor %}
+
+        <div class="form-field mt-4">
+          <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+          {{ form.nome }}
+          <div class="form-text">{{ form.nome.help_text }}</div>
+          {% for error in form.nome.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="form-field mt-3">
+          <label class="form-label" for="{{ form.objetivo.id_for_label }}">{{ form.objetivo.label }}</label>
+          {{ form.objetivo }}
+          {% for error in form.objetivo.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+
+        <button class="btn btn-primary btn-lg w-100 mt-4" type="submit">
+          <i class="bi bi-stars me-2"></i>Ler PDF e criar roadmap
+        </button>
+        <p class="processing-hint"><i class="bi bi-info-circle"></i> PDFs digitalizados como imagem ainda precisam de OCR.</p>
+      </form>
+    </section>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.getElementById("{{ form.pdf.id_for_label }}")?.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) document.getElementById("pdfFileName").textContent = file.name;
+    });
+  </script>
+{% endblock %}

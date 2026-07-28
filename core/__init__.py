@@ -1,0 +1,1 @@
+"""Recursos compartilhados e dashboard."""

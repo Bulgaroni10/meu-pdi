@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ projeto.titulo }} | Meu PDI{% endblock %}
+{% block topbar_title %}Projetos{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'projetos:lista' %}">Projetos</a></li><li class="breadcrumb-item active">{{ projeto.titulo|truncatechars:45 }}</li></ol></nav>
+  <header class="project-detail-header">
+    <div>
+      <div class="card-badges"><span class="badge-soft status-{{ projeto.status }}">{{ projeto.get_status_display }}</span>{% if projeto.objetivo %}<span class="badge-soft">{{ projeto.objetivo.titulo|truncatechars:40 }}</span>{% endif %}</div>
+      <h1>{{ projeto.titulo }}</h1>
+      <p>{{ projeto.solucao|default:"Defina a solução que será entregue neste projeto." }}</p>
+    </div>
+    <div class="detail-actions">
+      <a class="btn btn-light" href="{% url 'projetos:editar' projeto.id %}"><i class="bi bi-pencil me-2"></i>Editar</a>
+      <form method="post" action="{% url 'projetos:arquivar' projeto.id %}">{% csrf_token %}<button class="btn btn-light" type="submit"><i class="bi bi-archive me-2"></i>Arquivar</button></form>
+    </div>
+  </header>
+
+  <section class="project-overview">
+    <article class="content-card project-progress-panel">
+      <div class="progress-ring" style="--progress: {{ projeto.progresso }}"><span>{{ projeto.progresso }}%</span></div>
+      <div><span class="eyebrow">Execução</span><h2>Progresso do projeto</h2><p>Atualizado automaticamente pelas tarefas e pelos marcos registrados.</p></div>
+    </article>
+    <article class="content-card project-stat"><i class="bi bi-check2-square"></i><strong>{{ projeto.tarefas_concluidas }}/{{ projeto.total_tarefas }}</strong><span>Tarefas concluídas</span></article>
+    <article class="content-card project-stat"><i class="bi bi-patch-check"></i><strong>{{ projeto.total_evidencias }}</strong><span>Evidências</span></article>
+  </section>
+
+  <div class="project-detail-grid">
+    <div class="project-main">
+      <section class="content-card project-section">
+        <div class="card-heading"><div><span class="eyebrow">Plano de execução</span><h2>Tarefas</h2></div><a class="text-link" href="{% url 'projetos:tarefa_criar' projeto.id %}"><i class="bi bi-plus-lg"></i> Adicionar</a></div>
+        <div class="project-checklist">
+          {% for tarefa in projeto.tarefas.all %}
+            <div class="{% if tarefa.status == 'concluida' %}done{% endif %}">
+              <form method="post" action="{% url 'projetos:tarefa_alternar' projeto.id tarefa.id %}">{% csrf_token %}<button type="submit" aria-label="Alternar conclusão de {{ tarefa.titulo }}"><i class="bi {% if tarefa.status == 'concluida' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i></button></form>
+              <div><strong>{{ tarefa.titulo }}</strong><small>{{ tarefa.get_prioridade_display }}{% if tarefa.prazo %} · {{ tarefa.prazo|date:"d/m/Y" }}{% endif %}</small></div>
+              <span class="badge-soft status-{{ tarefa.status }}">{{ tarefa.get_status_display }}</span>
+            </div>
+          {% empty %}<div class="mini-empty">Divida o projeto em pequenas entregas executáveis.</div>{% endfor %}
+        </div>
+      </section>
+
+      <section class="content-card project-section">
+        <div class="card-heading"><div><span class="eyebrow">Pontos de controle</span><h2>Marcos</h2></div><a class="text-link" href="{% url 'projetos:marco_criar' projeto.id %}"><i class="bi bi-plus-lg"></i> Adicionar</a></div>
+        <div class="milestone-list">
+          {% for marco in projeto.marcos.all %}
+            <div>
+              <form method="post" action="{% url 'projetos:marco_alternar' projeto.id marco.id %}">{% csrf_token %}<button type="submit" aria-label="Alternar conclusão de {{ marco.titulo }}"><span class="{% if marco.status == 'concluido' %}complete{% endif %}"></span></button></form>
+              <div><strong>{{ marco.titulo }}</strong><small>{{ marco.descricao|default:"Sem descrição"|truncatechars:100 }}{% if marco.prazo %} · {{ marco.prazo|date:"d/m/Y" }}{% endif %}</small></div>
+            </div>
+          {% empty %}<div class="mini-empty">Cadastre os momentos importantes do projeto.</div>{% endfor %}
+        </div>
+      </section>
+
+      <section class="content-card project-section">
+        <div class="card-heading"><div><span class="eyebrow">Comprovação</span><h2>Evidências</h2></div><a class="text-link" href="{% url 'projetos:evidencia_criar' projeto.id %}"><i class="bi bi-plus-lg"></i> Adicionar</a></div>
+        <div class="evidence-list">
+          {% for evidencia in projeto.evidencias.all %}
+            <article><span class="evidence-icon"><i class="bi {% if evidencia.imagem %}bi-image{% else %}bi-patch-check{% endif %}"></i></span><div><strong>{{ evidencia.titulo }}</strong><small>{{ evidencia.get_tipo_display }} · {{ evidencia.data|date:"d/m/Y" }}</small><p>{{ evidencia.descricao|truncatechars:150 }}</p>{% if evidencia.imagem %}<a class="evidence-preview" href="{% url 'projetos:evidencia_imagem' projeto.id evidencia.id %}" target="_blank" rel="noopener"><img src="{% url 'projetos:evidencia_imagem' projeto.id evidencia.id %}" alt="Captura: {{ evidencia.titulo }}"></a>{% endif %}</div><div class="evidence-actions">{% if evidencia.url %}<a href="{{ evidencia.url }}" target="_blank" rel="noopener" aria-label="Abrir evidência"><i class="bi bi-box-arrow-up-right"></i></a>{% endif %}<a href="{% url 'projetos:evidencia_editar' projeto.id evidencia.id %}" aria-label="Editar evidência"><i class="bi bi-pencil"></i></a><a href="{% url 'projetos:evidencia_confirmar_exclusao' projeto.id evidencia.id %}" aria-label="Excluir evidência"><i class="bi bi-trash"></i></a></div></article>
+          {% empty %}<div class="mini-empty">Registre links, documentos e resultados que comprovem a entrega.</div>{% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <aside class="project-sidebar">
+      <section class="content-card project-section">
+        <div class="card-heading"><div><span class="eyebrow">Stack</span><h2>Tecnologias</h2></div><a class="text-link" href="{% url 'projetos:tecnologia_adicionar' projeto.id %}"><i class="bi bi-plus-lg"></i></a></div>
+        <div class="project-tech-list large">{% for vinculo in projeto.tecnologias_vinculadas.all %}<span>{{ vinculo.tecnologia.nome }}</span>{% empty %}<p class="text-secondary small">Nenhuma tecnologia vinculada.</p>{% endfor %}</div>
+      </section>
+      <section class="content-card project-section">
+        <span class="eyebrow">Contexto</span><h2>Problema</h2><p>{{ projeto.problema|default:"Ainda não descrito."|linebreaksbr }}</p>
+      </section>
+      <section class="content-card project-section">
+        <span class="eyebrow">Reflexão</span><h2>Aprendizados</h2><p>{{ projeto.aprendizados|default:"Registre os aprendizados ao longo da execução."|linebreaksbr }}</p>
+      </section>
+      {% if projeto.repositorio_url or projeto.demonstracao_url %}
+        <section class="content-card project-links">
+          {% if projeto.repositorio_url %}<a href="{{ projeto.repositorio_url }}" target="_blank" rel="noopener"><i class="bi bi-github"></i> Repositório</a>{% endif %}
+          {% if projeto.demonstracao_url %}<a href="{{ projeto.demonstracao_url }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Demonstração</a>{% endif %}
+        </section>
+      {% endif %}
+    </aside>
+  </div>
+{% endblock %}

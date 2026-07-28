@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ roadmap.nome }} | Meu PDI{% endblock %}
+{% block topbar_title %}Roadmap{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'roadmap:lista' %}">Roadmaps</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ roadmap.nome|truncatechars:45 }}</li>
+    </ol>
+  </nav>
+
+  <header class="roadmap-detail-header">
+    <div>
+      <div class="card-badges justify-content-start">
+        <span class="badge-soft status-{{ roadmap.status }}">{{ roadmap.get_status_display }}</span>
+        <span class="badge-soft priority-{{ roadmap.prioridade }}">{{ roadmap.get_prioridade_display }}</span>
+        {% if roadmap.gerado_de_pdf %}<span class="badge-soft"><i class="bi bi-stars me-1"></i>Gerado do PDF</span>{% endif %}
+      </div>
+      <h1>{{ roadmap.nome }}</h1>
+      <p>{{ roadmap.descricao }}</p>
+    </div>
+    {% if roadmap.fonte_pdf %}
+      <a class="btn btn-light" href="{% url 'roadmap:abrir_fonte' roadmap.fonte_pdf.id %}" target="_blank" rel="noopener">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Abrir PDF original
+      </a>
+    {% endif %}
+  </header>
+
+  {% if roadmap.gerado_de_pdf %}
+    <div class="generated-review-alert">
+      <i class="bi bi-magic"></i>
+      <div><strong>Rascunho criado automaticamente</strong><span>Revise a sequência e adapte as entregas à sua realidade antes de começar.</span></div>
+    </div>
+  {% endif %}
+
+  <section class="roadmap-overview-card">
+    <div class="progress-ring" style="--progress: {{ roadmap.progresso }}"><span>{{ roadmap.progresso }}%</span></div>
+    <div><span class="eyebrow">Progresso geral</span><h2>{{ roadmap.fases.count }} fases identificadas</h2><p>{{ roadmap.observacoes }}</p></div>
+    <dl>
+      <div><dt>Início</dt><dd>{{ roadmap.data_inicio|date:"d/m/Y" }}</dd></div>
+      <div><dt>Prazo estimado</dt><dd>{{ roadmap.prazo|date:"d/m/Y"|default:"-" }}</dd></div>
+      {% if roadmap.fonte_pdf %}<div><dt>Documento</dt><dd>{{ roadmap.fonte_pdf.quantidade_paginas }} páginas</dd></div>{% endif %}
+    </dl>
+  </section>
+
+  {% if roadmap.objetivo %}
+    <a class="roadmap-objective-link" href="{% url 'objetivos:detalhe' roadmap.objetivo.id %}">
+      <span><i class="bi bi-bullseye"></i></span>
+      <div><small>Objetivo relacionado</small><strong>{{ roadmap.objetivo.titulo }}</strong></div>
+      <i class="bi bi-arrow-up-right"></i>
+    </a>
+  {% endif %}
+
+  <section class="roadmap-timeline" aria-label="Fases do roadmap">
+    {% for fase in roadmap.fases.all %}
+      <article class="roadmap-phase">
+        <div class="phase-marker"><span>{{ fase.ordem }}</span></div>
+        <div class="content-card phase-content">
+          <header>
+            <div>
+              <span class="phase-period">{{ fase.data_prevista_inicio|date:"d/m/Y" }} - {{ fase.data_prevista_conclusao|date:"d/m/Y" }}</span>
+              <h2>{{ fase.titulo }}</h2>
+              <p>{{ fase.descricao }}</p>
+            </div>
+            <span class="badge-soft status-{{ fase.status }}">{{ fase.get_status_display }}</span>
+          </header>
+
+          <div class="phase-progress">
+            <div><span>Progresso da fase</span><strong>{{ fase.progresso }}%</strong></div>
+            <div class="progress"><div class="progress-bar" style="width: {{ fase.progresso }}%"></div></div>
+          </div>
+
+          <div class="phase-columns">
+            <div>
+              <h3><i class="bi bi-list-check"></i>Etapas sugeridas</h3>
+              <ul class="phase-step-list">
+                {% for etapa in fase.etapas.all %}
+                  <li class="{% if etapa.concluida %}done{% endif %}"><form method="post" action="{% url 'roadmap:etapa_alternar' roadmap.id etapa.id %}">{% csrf_token %}<button type="submit" aria-label="{% if etapa.concluida %}Reabrir{% else %}Concluir{% endif %} etapa {{ etapa.titulo }}"><i class="bi {% if etapa.concluida %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i></button></form><div><strong>{{ etapa.titulo }}</strong>{% if etapa.descricao != etapa.titulo %}<small>{{ etapa.descricao }}</small>{% endif %}</div></li>
+                {% empty %}<li>Nenhuma etapa identificada.</li>{% endfor %}
+              </ul>
+            </div>
+            <div>
+              <h3><i class="bi bi-box-seam"></i>Entrega prática</h3>
+              {% for entrega in fase.entregas.all %}
+                <div class="phase-delivery">
+                  <strong>{{ entrega.titulo }}</strong>
+                  <p>{{ entrega.descricao }}</p>
+                  <small><i class="bi bi-check2-circle"></i>{{ entrega.criterio_aceite }}</small>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          <footer><i class="bi bi-arrow-right-circle"></i><span><strong>Próxima ação:</strong> {{ fase.proxima_acao }}</span></footer>
+        </div>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state"><strong>Nenhuma fase foi identificada.</strong></div>
+    {% endfor %}
+  </section>
+{% endblock %}

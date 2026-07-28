@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ aula.titulo }} - PDF e anotações{% endblock %}{% block topbar_title %}Workspace de aula{% endblock %}
+{% block content %}
+  <header class="workspace-head"><div><span class="eyebrow">{{ aula.disciplina.nome }}</span><h1>{{ aula.titulo }}</h1><p>Leia o material e registre as ideias importantes.</p></div><div>{% if not material %}<a class="btn btn-light" href="{% url 'biblioteca:upload' %}?aula={{ aula.id }}"><i class="bi bi-upload me-2"></i>Anexar PDF</a>{% endif %}<a class="btn btn-primary" href="{% url 'anotacoes:criar' %}?aula={{ aula.id }}"><i class="bi bi-plus-lg me-2"></i>Nova anotação</a></div></header>
+  <div class="class-workspace">
+    <section class="pdf-panel">{% if material %}<iframe title="PDF {{ material.titulo }}" src="{% url 'biblioteca:abrir' material.id %}#page=1&view=FitH"></iframe>{% else %}<div class="empty-state"><span class="empty-icon"><i class="bi bi-file-earmark-pdf"></i></span><strong>Nenhum PDF nesta aula</strong><p>Anexe um material para estudar lado a lado.</p><a class="btn btn-primary" href="{% url 'biblioteca:upload' %}?aula={{ aula.id }}">Anexar PDF</a></div>{% endif %}</section>
+    <aside class="workspace-notes"><div class="card-heading"><div><span class="eyebrow">Anotações da aula</span><h2>{{ anotacoes.count }} registros</h2></div></div>{% for nota in anotacoes %}<a href="{% url 'anotacoes:editar' nota.id %}"><div><strong>{{ nota.titulo }}</strong><small>{{ nota.get_tipo_display }}{% if nota.pagina_pdf %} · página {{ nota.pagina_pdf }}{% endif %}</small></div><i class="bi bi-chevron-right"></i></a>{% empty %}<div class="mini-empty"><i class="bi bi-pencil"></i><p>Nenhuma anotação para esta aula.</p></div>{% endfor %}</aside>
+  </div>
+{% endblock %}

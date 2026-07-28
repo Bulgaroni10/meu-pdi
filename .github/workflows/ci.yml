@@ -1,0 +1,27 @@
+name: qualidade
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py check
+      - run: python manage.py test
+      - run: python -m pip check
+      - name: Verificação de produção
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.production
+          DJANGO_SECRET_KEY: ci-only-secret-key-with-more-than-fifty-characters-123456789
+          DJANGO_ALLOWED_HOSTS: localhost
+          DJANGO_SECURE_SSL_REDIRECT: "true"
+        run: python manage.py check --deploy

@@ -1,0 +1,7 @@
+<nav class="study-nav" aria-label="Navegação de estudos">
+  <a class="{% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'estudos:inicio' %}">Visão geral</a>
+  <a class="{% if 'trilha' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'estudos:trilhas' %}">Trilhas</a>
+  <a class="{% if 'curso' in request.resolver_match.url_name or 'periodo' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'estudos:cursos' %}">Cursos</a>
+  <a class="{% if 'disciplina' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'estudos:disciplinas' %}">Disciplinas</a>
+  <a class="{% if 'aula' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'estudos:aulas' %}">Aulas</a>
+</nav>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}{{ competencia.nome }} | Meu PDI{% endblock %}
+{% block topbar_title %}Competências{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'competencias:lista' %}">Competências</a></li><li class="breadcrumb-item active">{{ competencia.nome }}</li></ol></nav>
+  <header class="competency-detail-header">
+    <div><span class="badge-soft">{{ competencia.get_categoria_display }}</span><h1>{{ competencia.nome }}</h1><p>{{ competencia.descricao|default:"Competência ainda sem descrição." }}</p></div>
+    <div class="detail-actions"><a class="btn btn-light" href="{% url 'competencias:editar' competencia.id %}"><i class="bi bi-pencil me-2"></i>Editar</a><a class="btn btn-primary" href="{% url 'competencias:avaliar' competencia.id %}"><i class="bi bi-patch-check me-2"></i>Avaliar nível</a></div>
+  </header>
+
+  <section class="competency-summary">
+    <article class="content-card level-panel">
+      <div class="level-number">{{ competencia.nivel_atual }}</div>
+      <div><span class="eyebrow">Nível demonstrado</span><h2>{% if competencia.nivel_atual %}Evolução comprovada{% else %}Aguardando primeira avaliação{% endif %}</h2><div class="level-scale large"><span class="{% if competencia.nivel_atual >= 1 %}active{% endif %}"></span><span class="{% if competencia.nivel_atual >= 2 %}active{% endif %}"></span><span class="{% if competencia.nivel_atual >= 3 %}active{% endif %}"></span><span class="{% if competencia.nivel_atual >= 4 %}active{% endif %}"></span><span class="{% if competencia.nivel_atual >= 5 %}active{% endif %}"></span></div></div>
+    </article>
+    <article class="content-card competency-target"><span>Meta</span><strong>Nível {{ competencia.nivel_desejado }}</strong><small>{{ competencia.prazo|date:"d/m/Y"|default:"Sem prazo definido" }}</small></article>
+  </section>
+
+  <div class="competency-detail-grid">
+    <section class="content-card competency-history">
+      <div class="card-heading"><div><span class="eyebrow">Rastreabilidade</span><h2>Histórico de avaliações</h2></div></div>
+      {% for avaliacao in competencia.avaliacoes.all %}
+        <article>
+          <div class="evaluation-level">{{ avaliacao.nivel }}</div>
+          <div class="evaluation-body"><header><strong>Nível {{ avaliacao.nivel }}</strong><span>{{ avaliacao.data|date:"d/m/Y" }}</span></header><p>{{ avaliacao.justificativa|linebreaksbr }}</p><div class="evaluation-evidence">{% for evidencia in avaliacao.evidencias.all %}<a href="{% url 'projetos:detalhe' evidencia.projeto.id %}"><i class="bi bi-patch-check"></i>{{ evidencia.titulo }}</a>{% endfor %}</div></div>
+        </article>
+      {% empty %}
+        <div class="empty-state"><span class="empty-icon"><i class="bi bi-patch-check"></i></span><strong>Nenhuma avaliação</strong><p>O nível só aumenta quando uma evidência prática é vinculada.</p></div>
+      {% endfor %}
+    </section>
+    <aside class="competency-sidebar">
+      <section class="content-card"><span class="eyebrow">Critérios</span><h2>Como evoluir</h2><p>{{ competencia.criterios|default:"Defina comportamentos e entregas observáveis para cada avanço."|linebreaksbr }}</p></section>
+      <form method="post" action="{% url 'competencias:arquivar' competencia.id %}" class="content-card archive-competency">{% csrf_token %}<p>Não deseja mais acompanhar esta habilidade?</p><button class="btn btn-light" type="submit"><i class="bi bi-archive me-2"></i>Arquivar competência</button></form>
+    </aside>
+  </div>
+{% endblock %}

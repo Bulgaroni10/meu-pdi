@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} | Meu PDI{% endblock %}
+{% block topbar_title %}Objetivos{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'objetivos:lista' %}">Objetivos</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+    </ol>
+  </nav>
+
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">Clareza antes da ação</span>
+      <h1>{{ titulo }}</h1>
+      <p>Descreva o resultado desejado, por que ele importa e qual é o próximo passo concreto.</p>
+    </div>
+  </div>
+
+  <form method="post" novalidate class="objective-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <section class="content-card form-section">
+      <div class="form-section-heading">
+        <span>01</span><div><h2>Essência do objetivo</h2><p>O que você quer alcançar e por quê?</p></div>
+      </div>
+      <div class="form-grid">
+        {% include "components/form_field.html" with field=form.titulo full=True %}
+        {% include "components/form_field.html" with field=form.descricao full=True %}
+        {% include "components/form_field.html" with field=form.categoria %}
+        {% include "components/form_field.html" with field=form.tags_texto %}
+        {% include "components/form_field.html" with field=form.motivo full=True %}
+      </div>
+    </section>
+
+    <section class="content-card form-section">
+      <div class="form-section-heading">
+        <span>02</span><div><h2>Plano e acompanhamento</h2><p>Defina prazo, prioridade, estado e avanço atual.</p></div>
+      </div>
+      <div class="form-grid form-grid-four">
+        {% include "components/form_field.html" with field=form.data_inicio %}
+        {% include "components/form_field.html" with field=form.prazo %}
+        {% include "components/form_field.html" with field=form.prioridade %}
+        {% include "components/form_field.html" with field=form.status %}
+        {% include "components/form_field.html" with field=form.progresso %}
+        {% include "components/form_field.html" with field=form.proxima_acao full=True %}
+      </div>
+    </section>
+
+    <section class="content-card form-section">
+      <div class="form-section-heading">
+        <span>03</span><div><h2>Evidência de sucesso</h2><p>Como você saberá que chegou lá?</p></div>
+      </div>
+      <div class="form-grid">
+        {% include "components/form_field.html" with field=form.resultado_esperado %}
+        {% include "components/form_field.html" with field=form.evidencia_esperada %}
+        {% include "components/form_field.html" with field=form.obstaculos %}
+        {% include "components/form_field.html" with field=form.observacoes %}
+      </div>
+    </section>
+
+    <div class="sticky-form-actions">
+      <a class="btn btn-light" href="{% if objetivo %}{% url 'objetivos:detalhe' objetivo.id %}{% else %}{% url 'objetivos:lista' %}{% endif %}">Cancelar</a>
+      <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-2"></i>{{ acao }}</button>
+    </div>
+  </form>
+{% endblock %}

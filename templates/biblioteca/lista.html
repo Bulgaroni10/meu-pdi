@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Biblioteca | Meu PDI{% endblock %}{% block topbar_title %}Biblioteca{% endblock %}
+{% block content %}
+  <div class="page-heading study-heading"><div><span class="eyebrow">Materiais privados</span><h1>Biblioteca de PDFs</h1><p>Documentos organizados por aula e acessíveis apenas neste sistema local.</p></div><a class="btn btn-primary" href="{% url 'biblioteca:upload' %}"><i class="bi bi-upload me-2"></i>Anexar PDF</a></div>
+  <section class="material-grid">
+    {% for material in materiais %}
+      <article class="content-card material-card"><span class="pdf-material-icon"><i class="bi bi-file-earmark-pdf"></i></span><div><span>{{ material.aula.disciplina.nome }}</span><h2>{{ material.titulo }}</h2><p>{{ material.nome_original }} · {{ material.quantidade_paginas }} páginas · {{ material.tamanho|filesizeformat }}</p></div><div class="material-actions"><a class="btn btn-light" target="_blank" rel="noopener" href="{% url 'biblioteca:abrir' material.id %}">Abrir</a><a class="btn btn-primary" href="{% url 'anotacoes:workspace_aula' material.aula.id %}">Estudar</a></div></article>
+    {% empty %}<section class="content-card empty-state material-empty"><span class="empty-icon"><i class="bi bi-file-earmark-arrow-up"></i></span><strong>Nenhum PDF anexado</strong><p>Escolha uma aula e anexe o primeiro material.</p><a class="btn btn-primary" href="{% url 'biblioteca:upload' %}">Anexar PDF</a></section>{% endfor %}
+  </section>
+{% endblock %}

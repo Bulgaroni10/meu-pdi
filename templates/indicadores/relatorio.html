@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados do PDI | Meu PDI{% endblock %}
+{% block topbar_title %}Apresentação de resultados{% endblock %}
+
+{% block content %}
+  <header class="results-hero">
+    <div><span class="eyebrow">Relatório executivo do PDI</span><h1>{{ request.user.nome }}</h1><p>{{ request.user.cargo_atual }} → {{ request.user.cargo_desejado }}</p></div>
+    <div class="results-actions"><span>Atualizado em {{ gerado_em|date:"d/m/Y H:i" }}</span><button class="btn btn-primary no-print" type="button" onclick="window.print()"><i class="bi bi-printer me-2"></i>Imprimir ou salvar em PDF</button></div>
+  </header>
+
+  {% if objetivo_principal %}
+    <section class="results-objective">
+      <div><span class="eyebrow">Direção profissional</span><h2>{{ objetivo_principal.titulo }}</h2><p>{{ objetivo_principal.resultado_esperado|default:objetivo_principal.descricao }}</p></div>
+      <div class="progress-ring" style="--progress: {{ objetivo_principal.progresso }}"><span>{{ objetivo_principal.progresso }}%</span></div>
+    </section>
+  {% endif %}
+
+  <section class="results-kpis">
+    {% for kpi in kpis %}<article><i class="bi {{ kpi.icone }}"></i><span>{{ kpi.rotulo }}</span><strong>{{ kpi.valor }}</strong></article>{% endfor %}
+  </section>
+
+  <div class="results-grid">
+    <section class="content-card"><span class="eyebrow">Execução prática</span><h2>Projetos em destaque</h2><div class="results-list">{% for projeto in projetos_destaque %}<a href="{% url 'projetos:detalhe' projeto.id %}"><div><strong>{{ projeto.titulo }}</strong><small>{{ projeto.get_status_display }} · {{ projeto.progresso }}% concluído</small></div><i class="bi bi-arrow-up-right"></i></a>{% empty %}<p>Nenhum projeto registrado.</p>{% endfor %}</div></section>
+    <section class="content-card"><span class="eyebrow">Capacidade demonstrada</span><h2>Competências</h2><div class="results-list">{% for competencia in competencias_destaque %}<a href="{% url 'competencias:detalhe' competencia.id %}"><div><strong>{{ competencia.nome }}</strong><small>Nível {{ competencia.ultima_avaliacao_nivel|default:0 }} de {{ competencia.nivel_desejado }}</small></div><i class="bi bi-arrow-up-right"></i></a>{% empty %}<p>Nenhuma competência avaliada.</p>{% endfor %}</div></section>
+  </div>
+
+  <section class="results-summary">
+    <article><strong>{{ projetos.total }}</strong><span>projetos registrados</span></article>
+    <article><strong>{{ projetos.concluidas }}/{{ projetos.tarefas }}</strong><span>tarefas concluídas</span></article>
+    <article><strong>{{ competencias.nivel_medio }}</strong><span>nível médio de competências</span></article>
+    <article><strong>{{ certificacoes.aprovadas }}</strong><span>certificações conquistadas</span></article>
+  </section>
+
+  <footer class="results-footer"><strong>Meu PDI</strong><span>Planejamento, execução e evidências em uma única jornada mensurável.</span></footer>
+{% endblock %}

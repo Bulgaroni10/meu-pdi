@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Competências | Meu PDI{% endblock %}
+{% block topbar_title %}Competências{% endblock %}
+
+{% block content %}
+  <div class="page-heading competency-heading">
+    <div><span class="eyebrow">Matriz de evolução</span><h1>Minhas competências</h1><p>Acompanhe habilidades demonstradas por entregas reais, não apenas por conteúdo consumido.</p></div>
+    <a class="btn btn-primary" href="{% url 'competencias:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova competência</a>
+  </div>
+
+  <form class="filter-bar" method="get">
+    <select name="categoria" aria-label="Filtrar por categoria">
+      <option value="">Todas as categorias</option>
+      {% for valor, rotulo in categorias %}<option value="{{ valor }}" {% if categoria_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-light" type="submit">Filtrar</button>
+  </form>
+
+  <section class="competency-grid">
+    {% for competencia in competencias %}
+      <article class="content-card competency-card">
+        <div class="competency-card-top"><span class="competency-icon"><i class="bi bi-diagram-3"></i></span><span class="badge-soft">{{ competencia.get_categoria_display }}</span></div>
+        <div><h2><a href="{% url 'competencias:detalhe' competencia.id %}">{{ competencia.nome }}</a></h2><p>{{ competencia.descricao|default:"Descreva como esta competência aparece na sua prática."|truncatechars:110 }}</p></div>
+        <div class="level-scale" aria-label="Nível atual {{ competencia.nivel_atual }} de 5">
+          <span class="{% if competencia.nivel_atual >= 1 %}active{% endif %}"></span>
+          <span class="{% if competencia.nivel_atual >= 2 %}active{% endif %}"></span>
+          <span class="{% if competencia.nivel_atual >= 3 %}active{% endif %}"></span>
+          <span class="{% if competencia.nivel_atual >= 4 %}active{% endif %}"></span>
+          <span class="{% if competencia.nivel_atual >= 5 %}active{% endif %}"></span>
+        </div>
+        <footer><span>Nível atual <strong>{{ competencia.nivel_atual }}</strong></span><span>Meta <strong>{{ competencia.nivel_desejado }}</strong></span>{% if competencia.prazo %}<span><i class="bi bi-calendar3"></i>{{ competencia.prazo|date:"d/m/Y" }}</span>{% endif %}</footer>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state competency-empty"><span class="empty-icon"><i class="bi bi-diagram-3"></i></span><strong>Nenhuma competência cadastrada</strong><p>Comece por uma habilidade importante para o seu objetivo profissional.</p><a class="btn btn-primary" href="{% url 'competencias:criar' %}">Criar competência</a></div>
+    {% endfor %}
+  </section>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ objetivo.titulo }} | Meu PDI{% endblock %}
+{% block topbar_title %}Objetivos{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'objetivos:lista' %}">Objetivos</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ objetivo.titulo|truncatechars:45 }}</li>
+    </ol>
+  </nav>
+
+  <header class="objective-detail-header">
+    <div class="objective-detail-title">
+      <div class="card-badges">
+        <span class="badge-soft">{{ objetivo.get_categoria_display }}</span>
+        <span class="badge-soft priority-{{ objetivo.prioridade }}">{{ objetivo.get_prioridade_display }}</span>
+        <span class="badge-soft status-{{ objetivo.status_efetivo }}">{{ objetivo.status_efetivo_label }}</span>
+        {% if objetivo.is_arquivado %}<span class="badge-soft">Arquivado</span>{% endif %}
+      </div>
+      <h1>{{ objetivo.titulo }}</h1>
+      <p>{{ objetivo.descricao|default:"Este objetivo ainda não possui uma descrição." }}</p>
+    </div>
+    <div class="detail-actions">
+      {% if objetivo.is_arquivado %}
+        <form method="post" action="{% url 'objetivos:restaurar' objetivo.id %}">
+          {% csrf_token %}
+          <button class="btn btn-light" type="submit"><i class="bi bi-arrow-counterclockwise me-2"></i>Restaurar</button>
+        </form>
+      {% else %}
+        <a class="btn btn-light" href="{% url 'objetivos:arquivar' objetivo.id %}"><i class="bi bi-archive me-2"></i>Arquivar</a>
+        <a class="btn btn-light" href="{% url 'roadmap:importar_pdf' %}?objetivo={{ objetivo.id }}"><i class="bi bi-file-earmark-pdf me-2"></i>Criar roadmap</a>
+        <a class="btn btn-primary" href="{% url 'objetivos:editar' objetivo.id %}"><i class="bi bi-pencil me-2"></i>Editar</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <section class="detail-progress-card">
+    <div class="progress-ring" style="--progress: {{ objetivo.progresso }}">
+      <span>{{ objetivo.progresso }}%</span>
+    </div>
+    <div>
+      <span class="eyebrow">Progresso registrado</span>
+      <h2>{% if objetivo.status == "concluido" %}Objetivo concluído{% elif objetivo.proxima_acao %}Próxima ação definida{% else %}Defina seu próximo movimento{% endif %}</h2>
+      <p>{{ objetivo.proxima_acao|default:"Edite o objetivo e registre uma ação pequena, concreta e executável." }}</p>
+    </div>
+    <dl class="deadline-summary">
+      <div><dt>Início</dt><dd>{{ objetivo.data_inicio|date:"d/m/Y" }}</dd></div>
+      <div><dt>Prazo</dt><dd>{{ objetivo.prazo|date:"d/m/Y"|default:"Sem prazo" }}</dd></div>
+      {% if objetivo.data_conclusao %}<div><dt>Conclusão</dt><dd>{{ objetivo.data_conclusao|date:"d/m/Y" }}</dd></div>{% endif %}
+    </dl>
+  </section>
+
+  <div class="objective-detail-grid">
+    <div class="detail-main">
+      <section class="content-card detail-section">
+        <div class="card-heading"><div><span class="eyebrow">Motivação</span><h2>Por que isso importa?</h2></div></div>
+        <p>{{ objetivo.motivo|default:"Motivo ainda não registrado."|linebreaksbr }}</p>
+      </section>
+      <section class="content-card detail-section detail-two-columns">
+        <div>
+          <span class="detail-icon"><i class="bi bi-flag"></i></span>
+          <h2>Resultado esperado</h2>
+          <p>{{ objetivo.resultado_esperado|default:"Ainda não definido."|linebreaksbr }}</p>
+        </div>
+        <div>
+          <span class="detail-icon"><i class="bi bi-patch-check"></i></span>
+          <h2>Evidência esperada</h2>
+          <p>{{ objetivo.evidencia_esperada|default:"Ainda não definida."|linebreaksbr }}</p>
+        </div>
+      </section>
+      <section class="content-card detail-section detail-two-columns">
+        <div><span class="eyebrow">Possíveis barreiras</span><h2>Obstáculos</h2><p>{{ objetivo.obstaculos|default:"Nenhum obstáculo registrado."|linebreaksbr }}</p></div>
+        <div><span class="eyebrow">Contexto adicional</span><h2>Observações</h2><p>{{ objetivo.observacoes|default:"Nenhuma observação."|linebreaksbr }}</p></div>
+      </section>
+    </div>
+
+    <aside class="detail-sidebar">
+      <section class="content-card">
+        <div class="card-heading"><div><span class="eyebrow">Organização</span><h2>Tags</h2></div></div>
+        <div class="tag-list">
+          {% for tag in objetivo.tags.all %}<span>#{{ tag.nome }}</span>{% empty %}<p class="text-secondary small mb-0">Nenhuma tag.</p>{% endfor %}
+        </div>
+      </section>
+      <section class="content-card history-card">
+        <div class="card-heading"><div><span class="eyebrow">Rastreabilidade</span><h2>Histórico</h2></div></div>
+        <div class="history-list">
+          {% for evento in objetivo.historico.all|slice:":8" %}
+            <div class="history-item">
+              <span></span>
+              <div><strong>{{ evento.descricao }}</strong><small>{{ evento.created_at|date:"d/m/Y H:i" }}</small></div>
+            </div>
+          {% empty %}
+            <p class="text-secondary small">Nenhuma alteração registrada.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+{% endblock %}

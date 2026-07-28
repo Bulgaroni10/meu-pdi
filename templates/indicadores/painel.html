@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Indicadores | Meu PDI{% endblock %}
+{% block topbar_title %}Indicadores{% endblock %}
+
+{% block content %}
+  <div class="page-heading indicators-heading">
+    <div><span class="eyebrow">Evolução mensurável</span><h1>Indicadores do PDI</h1><p>Uma leitura consolidada do que você planejou, estudou, praticou e comprovou.</p></div>
+    <a class="btn btn-primary" href="{% url 'indicadores:relatorio' %}"><i class="bi bi-easel2 me-2"></i>Apresentar resultados</a>
+  </div>
+
+  <section class="kpi-grid indicator-kpis">
+    {% for kpi in kpis %}
+      <article class="kpi-card"><div class="kpi-icon text-bg-primary"><i class="bi {{ kpi.icone }}"></i></div><div><span>{{ kpi.rotulo }}</span><strong>{{ kpi.valor }}</strong></div></article>
+    {% endfor %}
+  </section>
+
+  <section class="indicators-main-grid">
+    <article class="content-card overall-indicator">
+      <div class="card-heading"><div><span class="eyebrow">Visão consolidada</span><h2>Progresso geral</h2></div><span class="status-pill">{{ progresso.cobertura }}% de cobertura</span></div>
+      <div class="overall-body">
+        <div class="progress-ring large-ring" style="--progress: {{ progresso.valor }}"><span>{{ progresso.valor }}%</span></div>
+        <div class="domain-progress-list">
+          {% for item in progresso.componentes %}
+            <div><header><span>{{ item.nome }}</span><strong>{{ item.valor }}%</strong></header><div class="progress"><div class="progress-bar" style="width: {{ item.valor }}%"></div></div><small>Peso {{ item.peso }}%</small></div>
+          {% empty %}<p class="text-secondary small">Os componentes aparecerão conforme você registrar dados.</p>{% endfor %}
+        </div>
+      </div>
+      <p class="indicator-note">O progresso considera somente áreas com dados; a cobertura mostra quanto do modelo completo já está representado.</p>
+    </article>
+
+    <article class="content-card monthly-study-indicator">
+      <div class="card-heading"><div><span class="eyebrow">Consistência</span><h2>Horas de estudo por mês</h2></div></div>
+      <div class="monthly-bars" aria-label="Horas estudadas nos últimos seis meses">
+        {% for item in meses_estudo %}
+          <div title="{{ item.horas }} horas em {{ item.mes }}/{{ item.ano }}"><strong>{% if item.minutos %}{{ item.horas }}h{% endif %}</strong><span style="height: {{ item.altura }}%"></span><small>{{ item.mes }}</small></div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="content-card objective-distribution">
+      <div class="card-heading"><div><span class="eyebrow">Direção</span><h2>Situação dos objetivos</h2></div></div>
+      <div class="distribution-list">
+        {% for item in objetivos_status %}
+          <div><header><span><i class="distribution-dot tone-{{ item.tom }}"></i>{{ item.nome }}</span><strong>{{ item.valor }}</strong></header><div class="progress"><div class="progress-bar tone-{{ item.tom }}" style="width: {{ item.percentual }}%"></div></div><small>{{ item.percentual }}% dos objetivos exibidos</small></div>
+        {% endfor %}
+      </div>
+    </article>
+  </section>
+
+  <section class="domain-indicator-grid">
+    <article class="content-card domain-indicator-card">
+      <span class="domain-indicator-icon"><i class="bi bi-kanban"></i></span><div><span class="eyebrow">Prática</span><h2>Projetos</h2></div>
+      <div class="domain-metric"><strong>{{ projetos.percentual }}%</strong><span>das tarefas concluídas</span></div>
+      <div class="progress"><div class="progress-bar" style="width: {{ projetos.percentual }}%"></div></div>
+      <footer>{{ projetos.total }} projeto{{ projetos.total|pluralize }} · {{ projetos.concluidas }}/{{ projetos.tarefas }} tarefas</footer>
+    </article>
+    <article class="content-card domain-indicator-card">
+      <span class="domain-indicator-icon"><i class="bi bi-diagram-3"></i></span><div><span class="eyebrow">Capacidade</span><h2>Competências</h2></div>
+      <div class="domain-metric"><strong>{{ competencias.nivel_medio }}</strong><span>nível médio de {{ competencias.meta_media }}</span></div>
+      <div class="progress"><div class="progress-bar" style="width: {{ competencias.percentual }}%"></div></div>
+      <footer>{{ competencias.total }} competência{{ competencias.total|pluralize }}</footer>
+    </article>
+    <article class="content-card domain-indicator-card">
+      <span class="domain-indicator-icon"><i class="bi bi-arrow-repeat"></i></span><div><span class="eyebrow">Reflexão</span><h2>Revisões</h2></div>
+      <div class="domain-metric"><strong>{{ revisoes.concluidas }}</strong><span>ciclos concluídos</span></div>
+      <div class="progress"><div class="progress-bar" style="width: {{ revisoes.percentual }}%"></div></div>
+      <footer>{{ revisoes.total }} revisões registradas</footer>
+    </article>
+    <article class="content-card domain-indicator-card">
+      <span class="domain-indicator-icon"><i class="bi bi-award"></i></span><div><span class="eyebrow">Validação</span><h2>Certificações</h2></div>
+      <div class="domain-metric"><strong>{{ certificacoes.aprovadas }}</strong><span>certificações conquistadas</span></div>
+      <div class="progress"><div class="progress-bar" style="width: {{ certificacoes.percentual }}%"></div></div>
+      <footer>{{ certificacoes.em_preparacao }} em preparação · {{ certificacoes.total }} no total</footer>
+    </article>
+  </section>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Revisões | Meu PDI{% endblock %}
+{% block topbar_title %}Revisões{% endblock %}
+
+{% block content %}
+  <div class="page-heading review-heading">
+    <div><span class="eyebrow">Refletir para ajustar</span><h1>Revisões periódicas</h1><p>Feche cada ciclo entendendo o que avançou, o que bloqueou e qual será o próximo movimento.</p></div>
+    <a class="btn btn-primary" href="{% url 'revisoes:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova revisão</a>
+  </div>
+  <form class="filter-bar" method="get"><select name="tipo" aria-label="Filtrar por período"><option value="">Todos os períodos</option>{% for valor, rotulo in tipos %}<option value="{{ valor }}" {% if tipo_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select><button class="btn btn-light" type="submit">Filtrar</button></form>
+
+  <section class="review-grid">
+    {% for revisao in revisoes %}
+      <article class="content-card review-card">
+        <div class="review-calendar"><span>{{ revisao.periodo_fim|date:"M"|upper }}</span><strong>{{ revisao.periodo_fim|date:"d" }}</strong></div>
+        <div class="review-card-body">
+          <div class="card-badges"><span class="badge-soft">{{ revisao.get_tipo_display }}</span><span class="badge-soft status-{{ revisao.status }}">{{ revisao.get_status_display }}</span></div>
+          <h2><a href="{% url 'revisoes:detalhe' revisao.id %}">{{ revisao.titulo }}</a></h2>
+          <p>{{ revisao.periodo_inicio|date:"d/m/Y" }} a {{ revisao.periodo_fim|date:"d/m/Y" }}</p>
+          <footer><span><i class="bi bi-list-check"></i>{{ revisao.acoes.count }} ações planejadas</span>{% if revisao.nota_periodo %}<span><i class="bi bi-star-fill"></i>Nota {{ revisao.nota_periodo }}/5</span>{% endif %}</footer>
+        </div>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state review-empty"><span class="empty-icon"><i class="bi bi-arrow-repeat"></i></span><strong>Nenhuma revisão registrada</strong><p>Faça um fechamento simples da sua semana ou do seu mês.</p><a class="btn btn-primary" href="{% url 'revisoes:criar' %}">Criar primeira revisão</a></div>
+    {% endfor %}
+  </section>
+{% endblock %}

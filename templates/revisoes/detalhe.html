@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ revisao.titulo }} | Meu PDI{% endblock %}
+{% block topbar_title %}Revisões{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'revisoes:lista' %}">Revisões</a></li><li class="breadcrumb-item active">{{ revisao.titulo }}</li></ol></nav>
+  <header class="review-detail-header">
+    <div><div class="card-badges"><span class="badge-soft">{{ revisao.get_tipo_display }}</span><span class="badge-soft status-{{ revisao.status }}">{{ revisao.get_status_display }}</span></div><h1>{{ revisao.titulo }}</h1><p>{{ revisao.periodo_inicio|date:"d/m/Y" }} a {{ revisao.periodo_fim|date:"d/m/Y" }}</p></div>
+    <div class="detail-actions"><a class="btn btn-light" href="{% url 'revisoes:editar' revisao.id %}"><i class="bi bi-pencil me-2"></i>Editar</a>{% if revisao.status != "concluida" %}<form method="post" action="{% url 'revisoes:concluir' revisao.id %}">{% csrf_token %}<button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle me-2"></i>Concluir ciclo</button></form>{% endif %}</div>
+  </header>
+
+  <section class="review-summary">
+    <article class="content-card review-score"><span>Percepção do período</span><strong>{% if revisao.nota_periodo %}{{ revisao.nota_periodo }}<small>/5</small>{% else %}—{% endif %}</strong></article>
+    <article class="content-card review-conclusion"><span class="eyebrow">Síntese</span><p>{{ revisao.conclusao|default:"Registre uma conclusão para consolidar este ciclo."|linebreaksbr }}</p></article>
+  </section>
+
+  <div class="review-detail-grid">
+    <div class="review-main">
+      <section class="review-reflections">
+        <article class="content-card"><span class="reflection-icon success"><i class="bi bi-trophy"></i></span><h2>Conquistas</h2><p>{{ revisao.conquistas|default:"Nenhuma conquista registrada."|linebreaksbr }}</p></article>
+        <article class="content-card"><span class="reflection-icon warning"><i class="bi bi-cone-striped"></i></span><h2>Dificuldades</h2><p>{{ revisao.dificuldades|default:"Nenhuma dificuldade registrada."|linebreaksbr }}</p></article>
+        <article class="content-card"><span class="reflection-icon info"><i class="bi bi-lightbulb"></i></span><h2>Aprendizados</h2><p>{{ revisao.aprendizados|default:"Nenhum aprendizado registrado."|linebreaksbr }}</p></article>
+        <article class="content-card"><span class="reflection-icon primary"><i class="bi bi-sliders"></i></span><h2>Ajustes</h2><p>{{ revisao.ajustes|default:"Nenhum ajuste registrado."|linebreaksbr }}</p></article>
+      </section>
+    </div>
+    <aside class="content-card review-actions">
+      <div class="card-heading"><div><span class="eyebrow">Próximo ciclo</span><h2>Próximas ações</h2></div><a class="text-link" href="{% url 'revisoes:acao_criar' revisao.id %}"><i class="bi bi-plus-lg"></i> Adicionar</a></div>
+      <div class="review-action-list">
+        {% for acao in revisao.acoes.all %}
+          <div class="{% if acao.status == 'concluida' %}done{% endif %}"><form method="post" action="{% url 'revisoes:acao_alternar' revisao.id acao.id %}">{% csrf_token %}<button type="submit" aria-label="Alternar conclusão de {{ acao.descricao }}"><i class="bi {% if acao.status == 'concluida' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i></button></form><div><strong>{{ acao.descricao }}</strong><small>{% if acao.prazo %}{{ acao.prazo|date:"d/m/Y" }}{% else %}Sem prazo{% endif %}{% if acao.objetivo %} · {{ acao.objetivo.titulo|truncatechars:25 }}{% elif acao.projeto %} · {{ acao.projeto.titulo|truncatechars:25 }}{% elif acao.competencia %} · {{ acao.competencia.nome|truncatechars:25 }}{% endif %}</small></div></div>
+        {% empty %}<div class="mini-empty">Transforme a reflexão em uma ação pequena e concreta.</div>{% endfor %}
+      </div>
+    </aside>
+  </div>
+{% endblock %}

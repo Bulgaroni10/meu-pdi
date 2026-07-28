@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Excluir {{ rotulo|lower }} | Meu PDI{% endblock %}
+{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <section class="content-card confirmation-card narrow-page">
+    <span class="confirmation-icon"><i class="bi bi-trash"></i></span>
+    <h1>Excluir {{ rotulo|lower }}?</h1>
+    <p>Você está prestes a excluir <strong>{{ item }}</strong>. A exclusão será bloqueada se houver histórico ou itens relacionados que precisam ser preservados.</p>
+    <form method="post" action="{% url 'estudos:excluir' tipo item.id %}" class="confirmation-actions">
+      {% csrf_token %}
+      <a class="btn btn-light" href="{% url retorno %}">Cancelar</a>
+      <button class="btn btn-danger" type="submit">Excluir definitivamente</button>
+    </form>
+  </section>
+{% endblock %}

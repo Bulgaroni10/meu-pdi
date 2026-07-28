@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Disciplinas | Meu PDI{% endblock %}{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <div class="page-heading study-heading"><div><span class="eyebrow">Conteúdo por matéria</span><h1>Disciplinas</h1><p>Acompanhe ementa, aulas, nota, frequência e progresso.</p></div><a class="btn btn-primary" href="{% url 'estudos:disciplina_criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova disciplina</a></div>
+  {% include "estudos/_nav.html" %}
+  <section class="discipline-list">
+    {% for disciplina in disciplinas %}
+      <article class="content-card discipline-row"><span class="study-list-icon"><i class="bi bi-journal-text"></i></span><div class="discipline-main"><span>{{ disciplina.curso.nome }}{% if disciplina.periodo %} · {{ disciplina.periodo.nome }}{% endif %}</span><h2><a href="{% url 'estudos:disciplina_detalhe' disciplina.id %}">{{ disciplina.nome }}</a></h2><small>{{ disciplina.professor|default:"Professor não informado" }}</small></div><div class="discipline-stat"><strong>{{ disciplina.aulas_concluidas }}/{{ disciplina.total_aulas }}</strong><span>conteúdos</span></div><div class="discipline-stat"><strong>{{ disciplina.progresso }}%</strong><span>progresso</span></div><span class="badge-soft status-{{ disciplina.status }}">{{ disciplina.get_status_display }}</span><a class="icon-button" href="{% url 'estudos:disciplina_editar' disciplina.id %}" aria-label="Editar {{ disciplina.nome }}"><i class="bi bi-pencil"></i></a><a class="icon-button" href="{% url 'estudos:confirmar_exclusao' 'disciplina' disciplina.id %}" aria-label="Excluir {{ disciplina.nome }}"><i class="bi bi-trash"></i></a></article>
+    {% empty %}<div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-journals"></i></span><strong>Nenhuma disciplina</strong><p>Cadastre um curso antes de adicionar disciplinas.</p></div>{% endfor %}
+  </section>
+{% endblock %}

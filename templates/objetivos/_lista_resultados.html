@@ -1,0 +1,76 @@
+{% if pagina.object_list %}
+  <section class="objective-grid" aria-label="Lista de objetivos">
+    {% for objetivo in pagina %}
+      <article class="objective-card{% if objetivo.is_arquivado %} archived{% endif %}">
+        <div class="objective-card-top">
+          <span class="category-icon category-{{ objetivo.categoria }}">
+            {% if objetivo.categoria == "profissional" %}<i class="bi bi-briefcase"></i>
+            {% elif objetivo.categoria == "academico" %}<i class="bi bi-mortarboard"></i>
+            {% elif objetivo.categoria == "pessoal" %}<i class="bi bi-person"></i>
+            {% elif objetivo.categoria == "financeiro" %}<i class="bi bi-cash-coin"></i>
+            {% elif objetivo.categoria == "saude" %}<i class="bi bi-heart-pulse"></i>
+            {% elif objetivo.categoria == "comunicacao" %}<i class="bi bi-chat-dots"></i>
+            {% else %}<i class="bi bi-compass"></i>{% endif %}
+          </span>
+          <div class="card-badges">
+            <span class="badge-soft priority-{{ objetivo.prioridade }}">{{ objetivo.get_prioridade_display }}</span>
+            <span class="badge-soft status-{{ objetivo.status_efetivo }}">{{ objetivo.status_efetivo_label }}</span>
+          </div>
+        </div>
+        <div class="objective-card-body">
+          <span class="objective-category">{{ objetivo.get_categoria_display }}</span>
+          <h2><a href="{% url 'objetivos:detalhe' objetivo.id %}">{{ objetivo.titulo }}</a></h2>
+          <p>{{ objetivo.descricao|default:"Sem descrição."|truncatechars:125 }}</p>
+          {% if objetivo.tags.all %}
+            <div class="tag-list">
+              {% for tag in objetivo.tags.all %}<span>#{{ tag.nome }}</span>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="objective-progress">
+          <div><span>Progresso</span><strong>{{ objetivo.progresso }}%</strong></div>
+          <div class="progress" role="progressbar" aria-label="Progresso de {{ objetivo.titulo }}"
+               aria-valuenow="{{ objetivo.progresso }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: {{ objetivo.progresso }}%"></div>
+          </div>
+        </div>
+        <footer class="objective-card-footer">
+          <span class="{% if objetivo.is_atrasado %}text-danger{% endif %}">
+            <i class="bi bi-calendar3"></i>
+            {% if objetivo.prazo %}{{ objetivo.prazo|date:"d/m/Y" }}{% else %}Sem prazo{% endif %}
+          </span>
+          <a href="{% url 'objetivos:detalhe' objetivo.id %}">Ver detalhes <i class="bi bi-arrow-right"></i></a>
+        </footer>
+      </article>
+    {% endfor %}
+  </section>
+
+  {% if pagina.paginator.num_pages > 1 %}
+    <nav class="pagination-wrap" aria-label="Paginação de objetivos">
+      <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+      <div class="btn-group">
+        {% if pagina.has_previous %}
+          <a class="btn btn-light" href="?{% if query_params %}{{ query_params }}&{% endif %}pagina={{ pagina.previous_page_number }}"
+             hx-get="?{% if query_params %}{{ query_params }}&{% endif %}pagina={{ pagina.previous_page_number }}"
+             hx-target="#objectiveResults" hx-push-url="true">Anterior</a>
+        {% endif %}
+        {% if pagina.has_next %}
+          <a class="btn btn-light" href="?{% if query_params %}{{ query_params }}&{% endif %}pagina={{ pagina.next_page_number }}"
+             hx-get="?{% if query_params %}{{ query_params }}&{% endif %}pagina={{ pagina.next_page_number }}"
+             hx-target="#objectiveResults" hx-push-url="true">Próxima</a>
+        {% endif %}
+      </div>
+    </nav>
+  {% endif %}
+{% else %}
+  <section class="content-card empty-state objective-empty">
+    <span class="empty-icon"><i class="bi bi-bullseye"></i></span>
+    <strong>Nenhum objetivo encontrado</strong>
+    <p>{% if request.GET %}Ajuste os filtros ou limpe a busca para ver outros resultados.{% else %}Crie seu primeiro objetivo para transformar intenção em um plano claro.{% endif %}</p>
+    {% if request.GET %}
+      <a class="btn btn-light" href="{% url 'objetivos:lista' %}">Limpar filtros</a>
+    {% else %}
+      <a class="btn btn-primary" href="{% url 'objetivos:criar' %}">Criar primeiro objetivo</a>
+    {% endif %}
+  </section>
+{% endif %}

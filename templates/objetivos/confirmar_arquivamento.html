@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Arquivar objetivo | Meu PDI{% endblock %}
+{% block topbar_title %}Objetivos{% endblock %}
+
+{% block content %}
+  <section class="content-card confirmation-card narrow-page">
+    <span class="confirmation-icon"><i class="bi bi-archive"></i></span>
+    <span class="eyebrow">Confirmação</span>
+    <h1>Arquivar este objetivo?</h1>
+    <p><strong>{{ objetivo.titulo }}</strong> sairá da listagem principal, mas todo o histórico será preservado.</p>
+    <form method="post" class="confirmation-actions">
+      {% csrf_token %}
+      <a class="btn btn-light" href="{% url 'objetivos:detalhe' objetivo.id %}">Cancelar</a>
+      <button class="btn btn-danger" type="submit">Arquivar objetivo</button>
+    </form>
+  </section>
+{% endblock %}

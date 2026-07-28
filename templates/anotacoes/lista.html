@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Anotações | Meu PDI{% endblock %}{% block topbar_title %}Anotações{% endblock %}
+{% block content %}
+  <div class="page-heading study-heading"><div><span class="eyebrow">Conhecimento registrado</span><h1>Minhas anotações</h1><p>Resumos, dúvidas, conceitos e aplicações práticas pesquisáveis.</p></div><a class="btn btn-primary" href="{% url 'anotacoes:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova anotação</a></div>
+  <form class="note-search" method="get"><i class="bi bi-search"></i><input type="search" name="q" value="{{ q }}" placeholder="Pesquisar no título e conteúdo"><button class="btn btn-light" type="submit">Pesquisar</button></form>
+  <section class="notes-grid">
+    {% for nota in anotacoes %}
+      <a class="content-card note-card" href="{% url 'anotacoes:editar' nota.id %}"><div><span class="badge-soft">{{ nota.get_tipo_display }}</span>{% if nota.pagina_pdf %}<span class="note-page">p. {{ nota.pagina_pdf }}</span>{% endif %}</div><h2>{{ nota.titulo }}</h2><p>{{ nota.conteudo_texto|default:"Anotação sem conteúdo."|truncatechars:150 }}</p><footer><span>{{ nota.aula.disciplina.nome }} · {{ nota.aula.titulo }}</span><small>{{ nota.updated_at|date:"d/m/Y H:i" }}</small></footer></a>
+    {% empty %}<section class="content-card empty-state notes-empty"><span class="empty-icon"><i class="bi bi-pencil-square"></i></span><strong>Nenhuma anotação encontrada</strong><p>Crie uma anotação vinculada a uma aula.</p></section>{% endfor %}
+  </section>
+{% endblock %}

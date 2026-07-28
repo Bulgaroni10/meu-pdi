@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Nova ação | Meu PDI{% endblock %}
+{% block topbar_title %}Revisões{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'revisoes:lista' %}">Revisões</a></li><li class="breadcrumb-item"><a href="{% url 'revisoes:detalhe' revisao.id %}">{{ revisao.titulo|truncatechars:35 }}</a></li><li class="breadcrumb-item active">Nova ação</li></ol></nav>
+  <div class="page-heading"><div><span class="eyebrow">Próximo ciclo</span><h1>Nova próxima ação</h1><p>Crie um compromisso concreto e, se fizer sentido, vincule-o a um objetivo, projeto ou competência.</p></div></div>
+  <form method="post" novalidate class="content-card compact-form">{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}<div class="form-grid">{% for field in form %}{% include "components/form_field.html" with field=field %}{% endfor %}</div><div class="form-actions"><a class="btn btn-light" href="{% url 'revisoes:detalhe' revisao.id %}">Cancelar</a><button class="btn btn-primary" type="submit">Adicionar ação</button></div></form>
+{% endblock %}

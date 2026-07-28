@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Estudos | Meu PDI{% endblock %}
+{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li><li class="breadcrumb-item active">Estudos</li></ol></nav>
+  <div class="page-heading study-heading">
+    <div><span class="eyebrow">Aprendizado organizado</span><h1>Central de estudos</h1><p>Organize seus conteúdos da trilha até cada aula e registre o que realmente aprendeu.</p></div>
+    <a class="btn btn-primary" href="{% url 'estudos:aula_criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova aula</a>
+  </div>
+  {% include "estudos/_nav.html" %}
+
+  <section class="study-summary">
+    <article><i class="bi bi-signpost-2"></i><div><strong>{{ resumo.trilhas }}</strong><span>Trilhas</span></div></article>
+    <article><i class="bi bi-mortarboard"></i><div><strong>{{ resumo.cursos }}</strong><span>Cursos</span></div></article>
+    <article><i class="bi bi-journals"></i><div><strong>{{ resumo.disciplinas }}</strong><span>Disciplinas</span></div></article>
+    <article><i class="bi bi-check2-circle"></i><div><strong>{{ resumo.concluidas }}/{{ resumo.aulas }}</strong><span>Aulas concluídas</span></div></article>
+  </section>
+
+  <div class="study-dashboard-grid">
+    <section class="content-card">
+      <div class="card-heading"><div><span class="eyebrow">Rotas de aprendizado</span><h2>Trilhas recentes</h2></div><a href="{% url 'estudos:trilhas' %}">Ver todas</a></div>
+      <div class="study-list">
+        {% for trilha in trilhas %}
+          <a href="{% url 'estudos:trilha_editar' trilha.id %}"><span class="study-list-icon"><i class="bi bi-signpost-2"></i></span><div><strong>{{ trilha.titulo }}</strong><small>{{ trilha.get_categoria_display }} · {{ trilha.progresso }}%</small></div><i class="bi bi-chevron-right"></i></a>
+        {% empty %}<div class="mini-empty"><i class="bi bi-signpost"></i><p>Crie uma trilha para agrupar seus estudos por área.</p><a href="{% url 'estudos:trilha_criar' %}">Criar trilha</a></div>{% endfor %}
+      </div>
+    </section>
+    <section class="content-card">
+      <div class="card-heading"><div><span class="eyebrow">Formações</span><h2>Cursos em foco</h2></div><a href="{% url 'estudos:cursos' %}">Ver todos</a></div>
+      <div class="study-list">
+        {% for curso in cursos %}
+          <a href="{% url 'estudos:curso_detalhe' curso.id %}"><span class="study-list-icon"><i class="bi bi-mortarboard"></i></span><div><strong>{{ curso.nome }}</strong><small>{{ curso.instituicao|default:curso.get_tipo_display }}</small></div><i class="bi bi-chevron-right"></i></a>
+        {% empty %}<div class="mini-empty"><i class="bi bi-mortarboard"></i><p>Cadastre faculdade, pós, certificação ou curso livre.</p><a href="{% url 'estudos:curso_criar' %}">Cadastrar curso</a></div>{% endfor %}
+      </div>
+    </section>
+    <section class="content-card study-next-classes">
+      <div class="card-heading"><div><span class="eyebrow">Conteúdo</span><h2>Últimas aulas</h2></div><a href="{% url 'estudos:aulas' %}">Ver aulas</a></div>
+      <div class="study-list">
+        {% for aula in aulas %}
+          <a href="{% url 'estudos:aula_detalhe' aula.id %}"><span class="study-list-icon"><i class="bi bi-play-circle"></i></span><div><strong>{{ aula.titulo }}</strong><small>{{ aula.disciplina.nome }} · {{ aula.data|date:"d/m/Y" }}</small></div><span class="badge-soft status-{{ aula.status }}">{{ aula.get_status_display }}</span></a>
+        {% empty %}<div class="mini-empty"><i class="bi bi-journal-plus"></i><p>As aulas registradas aparecerão aqui.</p></div>{% endfor %}
+      </div>
+    </section>
+  </div>
+{% endblock %}

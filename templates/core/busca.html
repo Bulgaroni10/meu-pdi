@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Busca | Meu PDI{% endblock %}
+{% block topbar_title %}Busca global{% endblock %}
+
+{% block content %}
+  <div class="page-heading search-heading"><div><span class="eyebrow">Todo o seu PDI</span><h1>Busca global</h1><p>Encontre informações em todos os módulos usando palavras do título ou do conteúdo.</p></div></div>
+  <form class="global-search-hero" method="get" action="{% url 'core:busca' %}">
+    <i class="bi bi-search" aria-hidden="true"></i>
+    <input type="search" name="q" value="{{ termo }}" placeholder="Ex.: Azure, PowerShell, projeto, revisão..." aria-label="Buscar em todo o PDI" autofocus>
+    <button class="btn btn-primary" type="submit">Buscar</button>
+  </form>
+
+  {% if termo %}
+    <div class="search-summary"><strong>{{ total_resultados }}</strong> resultado{{ total_resultados|pluralize }} para “{{ termo }}”</div>
+    {% if grupos %}
+      <div class="search-groups">
+        {% for grupo in grupos %}
+          <section class="content-card search-group">
+            <div class="card-heading"><div><span class="eyebrow">Resultados</span><h2>{{ grupo.nome }}</h2></div><span class="status-pill">{{ grupo.itens|length }}</span></div>
+            <div class="search-results">
+              {% for item in grupo.itens %}
+                <a href="{{ item.url }}" {% if grupo.nome == "Biblioteca" %}target="_blank" rel="noopener"{% endif %}>
+                  <span class="search-result-icon"><i class="bi {{ item.icone }}"></i></span>
+                  <div><strong>{{ item.titulo }}</strong><small>{{ item.subtitulo }}</small>{% if item.descricao %}<p>{{ item.descricao|striptags|truncatechars:160 }}</p>{% endif %}</div>
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="content-card empty-state search-empty"><span class="empty-icon"><i class="bi bi-search"></i></span><strong>Nenhum resultado encontrado</strong><p>Tente uma palavra mais curta ou um termo presente no conteúdo.</p></div>
+    {% endif %}
+  {% else %}
+    <div class="content-card empty-state search-empty"><span class="empty-icon"><i class="bi bi-stars"></i></span><strong>O que você procura?</strong><p>A busca percorre objetivos, estudos, anotações, projetos, competências, revisões e certificações.</p></div>
+  {% endif %}
+{% endblock %}

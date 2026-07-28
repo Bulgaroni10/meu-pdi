@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} | Meu PDI{% endblock %}
+{% block topbar_title %}Competências{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-3"><li class="breadcrumb-item"><a href="{% url 'competencias:lista' %}">Competências</a></li><li class="breadcrumb-item active">{{ titulo }}</li></ol></nav>
+  <div class="page-heading"><div><span class="eyebrow">Desenvolvimento demonstrável</span><h1>{{ titulo }}</h1><p>Defina a habilidade, o nível desejado e o que precisa ser demonstrado na prática.</p></div></div>
+  <form method="post" novalidate class="content-card compact-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="form-grid">
+      {% include "components/form_field.html" with field=form.nome full=True %}
+      {% include "components/form_field.html" with field=form.categoria %}
+      {% include "components/form_field.html" with field=form.nivel_desejado %}
+      {% include "components/form_field.html" with field=form.prazo %}
+      {% include "components/form_field.html" with field=form.descricao full=True %}
+      {% include "components/form_field.html" with field=form.criterios full=True %}
+    </div>
+    <div class="form-actions"><a class="btn btn-light" href="{% if competencia %}{% url 'competencias:detalhe' competencia.id %}{% else %}{% url 'competencias:lista' %}{% endif %}">Cancelar</a><button class="btn btn-primary" type="submit">Salvar competência</button></div>
+  </form>
+{% endblock %}

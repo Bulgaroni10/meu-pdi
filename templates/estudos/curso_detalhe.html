@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ curso.nome }} | Meu PDI{% endblock %}{% block topbar_title %}Estudos{% endblock %}
+{% block content %}
+  <div class="study-detail-head"><div><span class="eyebrow">{{ curso.get_tipo_display }}</span><h1>{{ curso.nome }}</h1><p>{{ curso.instituicao }}{% if curso.descricao %} · {{ curso.descricao }}{% endif %}</p></div><div class="detail-actions"><a class="btn btn-light" href="{% url 'estudos:curso_editar' curso.id %}"><i class="bi bi-pencil me-2"></i>Editar curso</a><a class="btn btn-light" href="{% url 'estudos:confirmar_exclusao' 'curso' curso.id %}"><i class="bi bi-trash me-2"></i>Excluir</a></div></div>
+  {% include "estudos/_nav.html" %}
+  <div class="course-hierarchy">
+    {% for periodo in curso.periodos.all %}
+      <section class="content-card course-period"><header><div><span class="eyebrow">Período {{ periodo.numero }}</span><h2>{{ periodo.nome }}</h2></div><span class="badge-soft status-{{ periodo.status }}">{{ periodo.get_status_display }}</span></header><div class="period-disciplines">{% for disciplina in periodo.disciplinas.all %}<a href="{% url 'estudos:disciplina_detalhe' disciplina.id %}"><span class="study-list-icon"><i class="bi bi-journal"></i></span><div><strong>{{ disciplina.nome }}</strong><small>{{ disciplina.aulas.count }} conteúdos · {{ disciplina.progresso }}%</small></div></a>{% empty %}<p>Nenhuma disciplina neste período.</p>{% endfor %}</div></section>
+    {% empty %}<section class="content-card empty-state"><strong>Nenhum período cadastrado</strong><p>Crie um período e vincule disciplinas a ele.</p><a class="btn btn-light" href="{% url 'estudos:periodo_criar' %}">Novo período</a></section>{% endfor %}
+  </div>
+{% endblock %}

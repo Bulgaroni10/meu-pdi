@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Anexar PDF | Meu PDI{% endblock %}{% block topbar_title %}Biblioteca{% endblock %}
+{% block content %}
+  <div class="page-heading"><div><span class="eyebrow">Material de aula</span><h1>Anexar PDF</h1><p>O arquivo será validado e armazenado localmente na pasta privada da aula.</p></div></div>
+  <section class="content-card study-form-card">
+    <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+      <div class="form-grid">{% for field in form %}<div class="form-field{% if field.name == 'descricao' or field.name == 'arquivo' %} full-width{% endif %}"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}</div>
+      <div class="form-actions"><a class="btn btn-light" href="{% url 'biblioteca:lista' %}">Cancelar</a><button class="btn btn-primary" type="submit"><i class="bi bi-upload me-2"></i>Anexar PDF</button></div>
+    </form>
+  </section>
+{% endblock %}
