@@ -7,4 +7,4 @@ psycopg[binary]>=3.2,<4
 pypdf>=6,<7
 sentry-sdk[django]>=2,<3
 whitenoise>=6.9,<7
-waitress>=3,<4
+waitress>=3.0.2,<4
