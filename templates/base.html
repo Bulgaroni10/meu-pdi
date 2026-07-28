@@ -172,6 +172,28 @@
     </div>
   </div>
 
+  <button class="study-timer-launcher" id="studyTimerLauncher" type="button"
+          aria-controls="studyTimerPanel" aria-expanded="false">
+    <i class="bi bi-stopwatch" aria-hidden="true"></i>
+    <span>Cronômetro</span>
+  </button>
+  <section class="study-timer-panel" id="studyTimerPanel" aria-label="Cronômetro de estudos" hidden>
+    <header>
+      <div><span class="eyebrow">Sessão de foco</span><strong>Cronômetro de estudos</strong></div>
+      <button type="button" id="studyTimerClose" aria-label="Fechar cronômetro"><i class="bi bi-x-lg"></i></button>
+    </header>
+    <output id="studyTimerDisplay" aria-live="polite">00:00:00</output>
+    <p>O tempo continua contando enquanto você navega pelo PDI neste dispositivo.</p>
+    <div>
+      <button class="btn btn-primary" type="button" id="studyTimerToggle">
+        <i class="bi bi-play-fill"></i><span>Iniciar</span>
+      </button>
+      <button class="btn btn-light" type="button" id="studyTimerReset">
+        <i class="bi bi-arrow-counterclockwise"></i> Zerar
+      </button>
+    </div>
+  </section>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   <script src="{% static 'js/app.js' %}"></script>

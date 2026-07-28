@@ -139,6 +139,12 @@ class Roadmap(OwnedModel):
         media = self.fases.aggregate(media=Avg("progresso"))["media"]
         return round(media or 0)
 
+    @property
+    def observacoes_publicas(self) -> str:
+        return self.observacoes.replace(
+            "seed:pdi-infra-cloud-gratuito-v1", ""
+        ).strip()
+
 
 class FaseRoadmap(OwnedModel):
     class Status(models.TextChoices):

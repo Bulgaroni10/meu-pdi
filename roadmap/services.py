@@ -3,7 +3,10 @@ import re
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Avg
 from django.utils import timezone
+
+from objetivos.models import Objetivo
 
 from .models import (
     EntregaRoadmap,
@@ -76,6 +79,27 @@ def recalcular_progresso_fase(fase: FaseRoadmap) -> int:
         status=status_roadmap,
         updated_at=timezone.now(),
     )
+    if roadmap.objetivo_id:
+        progresso_objetivo = round(
+            roadmap.fases.aggregate(media=Avg("progresso"))["media"] or 0
+        )
+        if progresso_objetivo == 100:
+            status_objetivo = Objetivo.Status.CONCLUIDO
+        elif progresso_objetivo > 0:
+            status_objetivo = Objetivo.Status.EM_ANDAMENTO
+        else:
+            status_objetivo = Objetivo.Status.PLANEJADO
+        objetivo = roadmap.objetivo
+        objetivo.progresso = progresso_objetivo
+        objetivo.status = status_objetivo
+        objetivo.save(
+            update_fields=(
+                "progresso",
+                "status",
+                "data_conclusao",
+                "updated_at",
+            )
+        )
     return progresso
 
 

@@ -12,6 +12,15 @@
     </div>
   </header>
   {% include "estudos/_nav.html" %}
+  {% if disciplina.observacoes %}
+    <section class="content-card study-resources">
+      <div>
+        <span class="eyebrow">Materiais gratuitos</span>
+        <h2>Recursos recomendados</h2>
+      </div>
+      <p>{{ disciplina.observacoes|urlize|linebreaksbr }}</p>
+    </section>
+  {% endif %}
   <section class="lesson-grid">
     {% for aula in disciplina.aulas.all %}
       <article class="content-card lesson-card">

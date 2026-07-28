@@ -34,8 +34,10 @@ flowchart LR
 
 - dashboard pessoal com direção profissional, prazos e ritmo de estudos;
 - objetivos mensuráveis com histórico, progresso e próxima ação;
-- roadmap criado a partir de PDF, com etapas concluíveis;
-- cursos, disciplinas e conteúdos relacionados;
+- PDI de Infraestrutura Cloud com Automação, com 48 semanas concluíveis;
+- roadmap criado a partir de PDF, com progresso sincronizado ao objetivo;
+- cursos, disciplinas, conteúdos e recursos gratuitos relacionados;
+- cronômetro de estudos persistente durante a navegação;
 - anotações ricas e biblioteca privada de PDFs;
 - projetos com tarefas, marcos, tecnologias e evidências visuais;
 - competências avaliadas obrigatoriamente por evidências;
@@ -95,13 +97,20 @@ python -m venv .venv
 Copy-Item .env.example .env
 .\.venv\Scripts\python.exe manage.py migrate
 .\.venv\Scripts\python.exe manage.py seed_demo
+.\.venv\Scripts\python.exe manage.py replace_pdi_cloud_plan --confirm
 .\.venv\Scripts\python.exe manage.py runserver
 ```
 
 Acesse [http://127.0.0.1:8000](http://127.0.0.1:8000). Depois da primeira
 instalação, também é possível iniciar com dois cliques em `iniciar.cmd`.
 
-Para carregar toda a demonstração:
+O comando `replace_pdi_cloud_plan` remove os registros pessoais anteriores e
+instala o plano canônico com 1 objetivo, 12 fases, 48 semanas, 8 projetos e os
+recursos gratuitos. A confirmação é obrigatória. Depois da instalação, novos
+deploys detectam o plano e preservam todo o progresso marcado.
+
+Os comandos demonstrativos antigos continuam disponíveis apenas para
+desenvolvimento:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py seed_objetivos
@@ -113,7 +122,7 @@ Para carregar toda a demonstração:
 .\.venv\Scripts\python.exe manage.py seed_certificacoes
 ```
 
-Os comandos são idempotentes e não duplicam os registros.
+Os comandos demonstrativos são idempotentes e não duplicam os registros.
 
 ## Testes e qualidade
 
@@ -193,9 +202,9 @@ No Render:
 5. opcionalmente configure `SENTRY_DSN`;
 6. aguarde `/health/ready/` ficar saudável.
 
-O build instala dependências, coleta arquivos estáticos, aplica migrations e
-carrega os dados iniciais. A implantação pessoal inicia com autenticação
-obrigatória.
+O build instala dependências, coleta arquivos estáticos, aplica migrations,
+garante o usuário pessoal e instala o PDI de 48 semanas somente quando ele ainda
+não existe. A implantação pessoal inicia com autenticação obrigatória.
 
 ## Documentação
 

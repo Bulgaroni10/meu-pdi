@@ -5,6 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from objetivos.models import Objetivo
 from roadmap.models import EtapaRoadmap, FaseRoadmap, Roadmap
 from roadmap.pdf_parser import DocumentoExtraido, SecaoPDF
 from usuarios.models import Usuario
@@ -100,9 +101,14 @@ class RoadmapViewTests(TestCase):
         self.assertEqual(response["Cache-Control"], "private, no-store")
 
     def test_concluir_etapa_atualiza_fase_e_roadmap(self):
+        objetivo = Objetivo.objects.create(
+            usuario=self.usuario,
+            titulo="Concluir o plano",
+        )
         roadmap = Roadmap.objects.create(
             usuario=self.usuario,
             nome="Roadmap pessoal",
+            objetivo=objetivo,
         )
         fase = FaseRoadmap.objects.create(
             usuario=self.usuario,
@@ -127,7 +133,10 @@ class RoadmapViewTests(TestCase):
         etapa.refresh_from_db()
         fase.refresh_from_db()
         roadmap.refresh_from_db()
+        objetivo.refresh_from_db()
         self.assertTrue(etapa.concluida)
         self.assertEqual(fase.progresso, 100)
         self.assertEqual(fase.status, FaseRoadmap.Status.CONCLUIDA)
         self.assertEqual(roadmap.status, Roadmap.Status.CONCLUIDO)
+        self.assertEqual(objetivo.progresso, 100)
+        self.assertEqual(objetivo.status, Objetivo.Status.CONCLUIDO)

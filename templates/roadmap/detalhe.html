@@ -38,7 +38,7 @@
 
   <section class="roadmap-overview-card">
     <div class="progress-ring" style="--progress: {{ roadmap.progresso }}"><span>{{ roadmap.progresso }}%</span></div>
-    <div><span class="eyebrow">Progresso geral</span><h2>{{ roadmap.fases.count }} fases identificadas</h2><p>{{ roadmap.observacoes }}</p></div>
+    <div><span class="eyebrow">Progresso geral</span><h2>{{ roadmap.fases.count }} fases identificadas</h2><p>{{ roadmap.observacoes_publicas }}</p></div>
     <dl>
       <div><dt>Início</dt><dd>{{ roadmap.data_inicio|date:"d/m/Y" }}</dd></div>
       <div><dt>Prazo estimado</dt><dd>{{ roadmap.prazo|date:"d/m/Y"|default:"-" }}</dd></div>
@@ -75,10 +75,10 @@
 
           <div class="phase-columns">
             <div>
-              <h3><i class="bi bi-list-check"></i>Etapas sugeridas</h3>
+              <h3><i class="bi bi-list-check"></i>Semanas do plano</h3>
               <ul class="phase-step-list">
                 {% for etapa in fase.etapas.all %}
-                  <li class="{% if etapa.concluida %}done{% endif %}"><form method="post" action="{% url 'roadmap:etapa_alternar' roadmap.id etapa.id %}">{% csrf_token %}<button type="submit" aria-label="{% if etapa.concluida %}Reabrir{% else %}Concluir{% endif %} etapa {{ etapa.titulo }}"><i class="bi {% if etapa.concluida %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i></button></form><div><strong>{{ etapa.titulo }}</strong>{% if etapa.descricao != etapa.titulo %}<small>{{ etapa.descricao }}</small>{% endif %}</div></li>
+                  <li class="{% if etapa.concluida %}done{% endif %}"><form method="post" action="{% url 'roadmap:etapa_alternar' roadmap.id etapa.id %}">{% csrf_token %}<button class="phase-step-toggle" type="submit" aria-label="{% if etapa.concluida %}Reabrir{% else %}Concluir{% endif %} {{ etapa.titulo }}"><i class="bi {% if etapa.concluida %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i><span>{% if etapa.concluida %}Concluída{% else %}Marcar como concluída{% endif %}</span></button></form><div><strong>{{ etapa.titulo }}</strong>{% if etapa.descricao != etapa.titulo %}<small>{{ etapa.descricao }}</small>{% endif %}</div></li>
                 {% empty %}<li>Nenhuma etapa identificada.</li>{% endfor %}
               </ul>
             </div>
