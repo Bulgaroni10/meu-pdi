@@ -4,6 +4,13 @@ Aplicação web para planejar, executar e comprovar o desenvolvimento pessoal e
 profissional. O sistema transforma objetivos em roadmaps, conecta estudos a
 projetos práticos e apresenta a evolução por indicadores e evidências.
 
+[Demonstração pública](https://meu-pdi-kauan.onrender.com) ·
+[Código-fonte](https://github.com/Bulgaroni10/meu-pdi) ·
+[Health check](https://meu-pdi-kauan.onrender.com/health/ready/)
+
+> A demonstração pública usa dados de exemplo e opera somente para leitura.
+> Instâncias gratuitas do Render podem levar cerca de 50 segundos para despertar.
+
 ![Dashboard do Meu PDI](docs/images/dashboard.png)
 
 ## Por que este projeto existe
@@ -119,6 +126,21 @@ Os comandos são idempotentes e não duplicam os registros.
 
 O pipeline em `.github/workflows/ci.yml` repete essas verificações em cada push
 e pull request.
+
+### Validação reproduzível
+
+Em 28 de julho de 2026, o repositório público foi clonado em uma pasta vazia e
+validado sem reutilizar o ambiente virtual ou o banco local:
+
+- instalação limpa de todas as dependências;
+- migrations aplicadas do zero e sem alterações pendentes;
+- todos os comandos de seed executados com dados demonstrativos;
+- 80 testes automatizados aprovados;
+- `manage.py check` e `pip check` sem problemas;
+- deploy no Render com PostgreSQL e `/health/ready/` saudável.
+
+O repositório não versiona `.venv`, bancos SQLite, logs, uploads pessoais,
+segredos nem arquivos `.env`.
 
 ## Segurança
 
