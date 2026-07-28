@@ -1,10 +1,34 @@
 from django import forms
 from django.contrib.auth.forms import (
+    AuthenticationForm,
     UserChangeForm,
     UserCreationForm,
 )
 
 from .models import Usuario
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.EmailField(
+        label="E-mail",
+        widget=forms.EmailInput(
+            attrs={
+                "autocomplete": "email",
+                "autofocus": True,
+                "placeholder": "seu@email.com",
+            }
+        ),
+    )
+    password = forms.CharField(
+        label="Senha",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "autocomplete": "current-password",
+                "placeholder": "Sua senha",
+            }
+        ),
+    )
 
 
 class PerfilForm(forms.ModelForm):

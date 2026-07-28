@@ -25,9 +25,12 @@
       <h2>{{ request.user.nome|default:request.user.email }}</h2>
       <p>{{ request.user.cargo_atual|default:"Complete seu cargo atual" }}</p>
       <div class="privacy-note">
-        <i class="bi bi-laptop" aria-hidden="true"></i>
-        <span>Perfil pessoal armazenado localmente neste computador.</span>
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        <span>Seu perfil é protegido por login e conexão HTTPS.</span>
       </div>
+      <a class="btn btn-outline-secondary w-100 mt-3" href="{% url 'usuarios:alterar_senha' %}">
+        <i class="bi bi-key me-2"></i>Alterar senha
+      </a>
     </aside>
 
     <section class="content-card form-card">

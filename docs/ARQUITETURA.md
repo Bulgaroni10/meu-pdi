@@ -5,8 +5,8 @@
 ```mermaid
 C4Context
     title Contexto do Meu PDI
-    Person(kauan, "Kauan", "Mantém o PDI na instalação pessoal")
-    Person(recrutador, "Recrutador", "Navega na demonstração somente leitura")
+    Person(kauan, "Kauan", "Mantém o PDI pelo celular e computadores pessoais")
+    Person(recrutador, "Recrutador", "Pode navegar em uma demo opcional somente leitura")
     System(pdi, "Meu PDI", "Planejamento e evidências de desenvolvimento")
     System_Ext(sentry, "Sentry", "Erros e desempenho, quando configurado")
     Rel(kauan, pdi, "Registra e acompanha")
@@ -18,7 +18,7 @@ C4Context
 
 ```mermaid
 flowchart TB
-    B["Navegador<br/>HTML, CSS, JavaScript"] -->|HTTPS| G["Gunicorn<br/>servidor WSGI"]
+    B["Celular ou computador<br/>HTML, CSS, JavaScript"] -->|HTTPS + sessão autenticada| G["Gunicorn<br/>servidor WSGI"]
     G --> D["Django 5.2 LTS<br/>aplicação modular"]
     D --> PG[("PostgreSQL<br/>dados estruturados")]
     D --> FS["Armazenamento privado<br/>PDFs e capturas"]
@@ -60,7 +60,8 @@ em `services.py`; views coordenam HTTP e templates.
 | Server-side rendering | Menos complexidade e boa acessibilidade | Interações ricas pontuais |
 | PostgreSQL em produção | Integridade e operação gerenciada | Requer serviço de banco |
 | SQLite local | Instalação rápida no Windows | Não é usado no deploy público |
-| Demo pública somente leitura | Não há autenticação por escolha do produto | Recrutadores navegam sem risco de alteração |
+| Login obrigatório na instalação publicada | O PDI é pessoal e editável pela internet | Somente o proprietário acessa os dados |
+| Demo pública opcional somente leitura | Apresentação sem expor edição | Recrutadores navegam sem risco de alteração |
 | Upload privado | PDFs e evidências podem conter dados sensíveis | Acesso sempre passa por autorização |
 | Logs em stdout | Compatível com contêineres e plataformas | Retenção pertence à plataforma |
 

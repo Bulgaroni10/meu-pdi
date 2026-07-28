@@ -5,7 +5,7 @@ Data da revisão: 28/07/2026
 ## Resultado
 
 O Meu PDI está apto para uso pessoal local no endereço
-`http://127.0.0.1:8000`. O sistema não possui login ou senha e, por isso, deve
+`http://127.0.0.1:8000`. O modo local pode iniciar automaticamente e, por isso, deve
 continuar restrito ao próprio computador.
 
 ## Escopo validado

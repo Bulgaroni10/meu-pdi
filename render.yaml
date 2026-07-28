@@ -18,7 +18,15 @@ services:
       - key: DB_CONN_MAX_AGE
         value: "60"
       - key: PUBLIC_DEMO_MODE
+        value: "false"
+      - key: PDI_REQUIRE_LOGIN
         value: "true"
+      - key: PDI_ADMIN_NAME
+        value: Kauan Bulgaroni
+      - key: PDI_ADMIN_EMAIL
+        sync: false
+      - key: PDI_ADMIN_PASSWORD
+        sync: false
       - key: LOG_FORMAT
         value: json
       - key: LOG_LEVEL

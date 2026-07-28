@@ -38,7 +38,8 @@ class Command(BaseCommand):
                 "em Cloud Azure e automação, até dezembro de 2027."
             )
             usuario.email = options["email"].lower()
-        usuario.set_unusable_password()
+        if created:
+            usuario.set_unusable_password()
         usuario.save()
         PreferenciaUsuario.objects.get_or_create(usuario=usuario)
 

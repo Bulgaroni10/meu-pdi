@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from usuarios.models import Usuario
@@ -34,7 +34,70 @@ class AcessoPessoalTests(TestCase):
         self.assertEqual(usuario.nome, "Nome Atualizado")
         self.assertEqual(Usuario.objects.count(), 1)
 
-    def test_rota_de_login_nao_existe(self):
-        response = self.client.get("/conta/login/")
+    def test_rota_de_login_existe(self):
+        response = self.client.get(reverse("usuarios:login"))
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Bem-vindo de volta")
+
+
+@override_settings(PDI_REQUIRE_LOGIN=True, PUBLIC_DEMO_MODE=False)
+class AutenticacaoPessoalTests(TestCase):
+    def setUp(self):
+        self.usuario = Usuario.objects.create_user(
+            email="kauan@example.com",
+            password="Senha-forte-para-testes-2026",
+            nome="Kauan",
+        )
+
+    def test_tela_privada_redireciona_para_login_preservando_destino(self):
+        response = self.client.get(reverse("usuarios:perfil"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('usuarios:login')}?next={reverse('usuarios:perfil')}",
+            fetch_redirect_response=False,
+        )
+
+    def test_login_com_email_e_senha_abre_dashboard(self):
+        response = self.client.post(
+            reverse("usuarios:login"),
+            {
+                "username": self.usuario.email,
+                "password": "Senha-forte-para-testes-2026",
+                "lembrar": "1",
+            },
+        )
+
+        self.assertRedirects(response, reverse("core:dashboard"))
+        self.assertEqual(
+            int(self.client.session["_auth_user_id"]),
+            self.usuario.pk,
+        )
+        self.assertFalse(self.client.session.get_expire_at_browser_close())
+
+    def test_login_invalido_nao_revela_qual_campo_falhou(self):
+        response = self.client.post(
+            reverse("usuarios:login"),
+            {
+                "username": self.usuario.email,
+                "password": "senha-incorreta",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "E-mail ou senha inválidos")
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logout_encerra_sessao(self):
+        self.client.force_login(self.usuario)
+
+        response = self.client.post(reverse("usuarios:logout"))
+
+        self.assertRedirects(response, reverse("usuarios:login"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_health_check_continua_publico(self):
+        response = self.client.get(reverse("core:health_ready"))
+
+        self.assertEqual(response.status_code, 200)

@@ -5,6 +5,7 @@ python -m pip install -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 python manage.py seed_demo
+python manage.py ensure_personal_user
 python manage.py seed_objetivos
 python manage.py seed_estudos
 python manage.py seed_anotacoes

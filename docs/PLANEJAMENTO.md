@@ -9,8 +9,9 @@ rastreável:
 
 ### Perfis e contexto
 
-- O sistema é pessoal, local e possui um único perfil criado automaticamente.
-- Não há cadastro, login, senha, logout ou recuperação de acesso.
+- O sistema é pessoal e possui um único perfil.
+- A instalação publicada exige login e oferece logout e troca de senha.
+- O modo local pode criar e abrir o perfil automaticamente.
 - Todos os registros mantêm um proprietário interno apenas para integridade dos
   relacionamentos e eventual migração futura, sem expor gestão de usuários.
 - O conteúdo demonstrativo é carregado por comando de seed e pode ser editado.
@@ -507,9 +508,9 @@ Cada etapa só avança após migrations, checks e testes da anterior passarem.
 - Projeto inicia no Windows seguindo apenas o README.
 - Configuração local usa `.env`; segredo não está versionado.
 - Migração cria usuário personalizado antes de dados de domínio.
-- O dashboard abre diretamente sem solicitar login ou senha.
-- O primeiro acesso cria um único perfil pessoal com senha inutilizável.
-- Rotas de login, logout e recuperação de senha não existem.
+- Em produção, o dashboard redireciona visitantes anônimos para o login.
+- O primeiro deploy configura o único perfil usando segredos do ambiente.
+- Login, logout e alteração de senha possuem rotas próprias.
 - Layout responde a desktop/mobile, menu recolhe e tema persiste.
 - `python manage.py check`, migrations e testes passam.
 - Configuração de produção falha de forma segura sem variáveis obrigatórias.

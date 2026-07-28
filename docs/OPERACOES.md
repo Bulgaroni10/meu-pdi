@@ -56,9 +56,14 @@ volume e custo.
 1. executar testes e `check --deploy`;
 2. aplicar migrations;
 3. coletar arquivos estáticos;
-4. confirmar `/health/live/` e `/health/ready/`;
-5. navegar no dashboard e relatório;
-6. revisar erros e tempo de resposta.
+4. confirmar que `PDI_ADMIN_EMAIL` e `PDI_ADMIN_PASSWORD` existem no primeiro deploy;
+5. confirmar `/health/live/` e `/health/ready/`;
+6. verificar redirecionamento anônimo para `/conta/login/`;
+7. validar login, logout e uma alteração autenticada;
+8. revisar erros e tempo de resposta.
+
+Depois que a senha inicial foi configurada, `ensure_personal_user` preserva a
+senha atual. A troca normal deve ser feita em **Conta → Segurança**.
 
 ### Semanal
 

@@ -33,7 +33,9 @@
 - [ ] `python manage.py collectstatic --noinput` concluído.
 - [ ] HSTS ativado somente após confirmar HTTPS em todos os subdomínios.
 - [ ] Modo pessoal sem senha não está exposto fora de `127.0.0.1`.
-- [ ] `PUBLIC_DEMO_MODE=true` confirmado na versão aberta a recrutadores.
+- [ ] `PDI_REQUIRE_LOGIN=true` confirmado na instalação pessoal editável.
+- [ ] `PDI_ADMIN_EMAIL` e `PDI_ADMIN_PASSWORD` configurados como segredos.
+- [ ] `PUBLIC_DEMO_MODE=false` confirmado na instalação pessoal editável.
 - [ ] Tentativas de POST na demonstração retornam HTTP 403.
 
 ## Uploads e biblioteca

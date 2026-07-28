@@ -8,8 +8,8 @@ projetos práticos e apresenta a evolução por indicadores e evidências.
 [Código-fonte](https://github.com/Bulgaroni10/meu-pdi) ·
 [Health check](https://meu-pdi-kauan.onrender.com/health/ready/)
 
-> A demonstração pública usa dados de exemplo e opera somente para leitura.
-> Instâncias gratuitas do Render podem levar cerca de 50 segundos para despertar.
+> A instalação publicada é pessoal e exige login. Instâncias gratuitas do
+> Render podem levar cerca de 50 segundos para despertar.
 
 ![Dashboard do Meu PDI](docs/images/dashboard.png)
 
@@ -42,7 +42,7 @@ flowchart LR
 - revisões periódicas e planejamento de certificações;
 - indicadores consolidados e relatório executivo imprimível;
 - busca global, modo claro/escuro e interface responsiva;
-- versão pública somente leitura para demonstração segura.
+- acesso pessoal autenticado e modo opcional de demonstração somente leitura.
 
 ## Demonstração visual
 
@@ -144,11 +144,17 @@ segredos nem arquivos `.env`.
 
 ## Segurança
 
-A instalação pessoal permanece sem tela de login, pois foi criada para uso
-individual. Esse modo nunca deve ser exposto diretamente à internet.
+A instalação publicada é pessoal, autenticada e editável. Todas as telas, exceto
+os health checks e o próprio login, exigem e-mail e senha. A opção **manter
+conectado** usa uma sessão segura de 30 dias, adequada para acesso pelo celular e
+por computadores pessoais.
 
-Para recrutadores, `PUBLIC_DEMO_MODE=true` ativa uma versão pública somente
-leitura:
+O modo local automático continua disponível com `PDI_REQUIRE_LOGIN=false`. Ele
+nunca deve ser exposto diretamente à internet.
+
+Quando for necessário apresentar uma versão aberta a recrutadores,
+`PUBLIC_DEMO_MODE=true` e `PDI_REQUIRE_LOGIN=false` ativam uma demonstração
+somente leitura:
 
 - requisições de alteração são recusadas;
 - PDFs e imagens não são servidos diretamente pelo diretório de uploads;
@@ -156,6 +162,10 @@ leitura:
 - cookies seguros, HTTPS, HSTS, CSP e demais cabeçalhos são habilitados;
 - chaves, banco e integrações são fornecidos por variáveis de ambiente;
 - logs não incluem conteúdo pessoal.
+
+As credenciais iniciais de produção são lidas de `PDI_ADMIN_EMAIL` e
+`PDI_ADMIN_PASSWORD`. A senha não é armazenada no Git e não é substituída por
+deploys posteriores depois que o usuário já possui uma senha válida.
 
 Threat model e controles: [docs/SEGURANCA.md](docs/SEGURANCA.md).
 
@@ -178,13 +188,14 @@ No Render:
 
 1. publique o repositório no GitHub;
 2. crie um Blueprint apontando para o repositório;
-3. confirme o serviço web e o PostgreSQL definidos no `render.yaml`;
-4. opcionalmente configure `SENTRY_DSN`;
-5. aguarde `/health/ready/` ficar saudável.
+3. informe `PDI_ADMIN_EMAIL` e `PDI_ADMIN_PASSWORD` como segredos;
+4. confirme o serviço web e o PostgreSQL definidos no `render.yaml`;
+5. opcionalmente configure `SENTRY_DSN`;
+6. aguarde `/health/ready/` ficar saudável.
 
 O build instala dependências, coleta arquivos estáticos, aplica migrations e
-carrega dados demonstrativos. A implantação pública inicia automaticamente em
-modo somente leitura.
+carrega os dados iniciais. A implantação pessoal inicia com autenticação
+obrigatória.
 
 ## Documentação
 

@@ -16,6 +16,10 @@ if missing:
 
 DEBUG = False
 SECRET_KEY = required["DJANGO_SECRET_KEY"]
+PDI_REQUIRE_LOGIN = env_bool(  # noqa: F405
+    "PDI_REQUIRE_LOGIN",
+    not PUBLIC_DEMO_MODE,  # noqa: F405
+)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")  # noqa: F405
 if render_hostname := os.getenv("RENDER_EXTERNAL_HOSTNAME"):  # noqa: F405
     ALLOWED_HOSTS.append(render_hostname)

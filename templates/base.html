@@ -95,6 +95,16 @@
            href="{% url 'usuarios:perfil' %}">
           <i class="bi bi-person-gear" aria-hidden="true"></i><span>Perfil</span>
         </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'alterar_senha' %}active{% endif %}"
+           href="{% url 'usuarios:alterar_senha' %}">
+          <i class="bi bi-shield-lock" aria-hidden="true"></i><span>Segurança</span>
+        </a>
+        <form method="post" action="{% url 'usuarios:logout' %}">
+          {% csrf_token %}
+          <button class="nav-item nav-logout" type="submit">
+            <i class="bi bi-box-arrow-left" aria-hidden="true"></i><span>Sair</span>
+          </button>
+        </form>
       </nav>
 
       <div class="sidebar-footer">

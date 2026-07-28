@@ -2,10 +2,16 @@
 
 ## Modelo de exposição
 
-Existem dois modos deliberadamente separados:
+Existem três modos deliberadamente separados:
 
 - **pessoal local:** sem login, editável, restrito ao computador do proprietário;
+- **pessoal publicado:** login obrigatório, editável e acessível por dispositivos
+  autorizados;
 - **demonstração pública:** sem login e estritamente somente leitura.
+
+O middleware `UsuarioPessoalMiddleware` exige autenticação quando
+`PDI_REQUIRE_LOGIN=true`. Apenas `/conta/login/`, `/health/live/` e
+`/health/ready/` permanecem públicos.
 
 O middleware `DemoSomenteLeituraMiddleware` bloqueia métodos diferentes de GET,
 HEAD e OPTIONS quando `PUBLIC_DEMO_MODE=true`. A versão pública deve conter
@@ -15,6 +21,9 @@ somente dados demonstrativos.
 
 | Ameaça | Controle |
 | --- | --- |
+| Acesso aos dados pessoais | Login obrigatório na implantação editável |
+| Sequestro de sessão | HTTPS, cookies Secure, HttpOnly e SameSite |
+| Senha exposta no repositório | Credencial fornecida por segredo de ambiente |
 | Alteração pública sem autenticação | Demo pública somente leitura |
 | Acesso direto a uploads | Ausência de rota pública para `/media/`; views protegidas |
 | Upload disfarçado | Validação de assinatura, extensão, MIME, páginas e tamanho |
@@ -59,7 +68,7 @@ fazem parte do pipeline.
 
 ## Limites conhecidos
 
-A instalação pessoal não possui autenticação e não deve ser publicada em modo
-editável. A demonstração não é um sistema multiusuário. Para oferecer edição
-pela internet, o próximo passo obrigatório é autenticação, autorização por
-objeto, recuperação de conta e gestão segura de sessão.
+A instalação é pessoal e não oferece cadastro público nem múltiplas contas.
+Recuperação automática por e-mail não está habilitada; em caso de perda de
+acesso, a credencial deve ser recuperada pelo ambiente seguro da hospedagem. O
+modo local sem login não deve ser exposto na rede.
