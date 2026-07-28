@@ -1,0 +1,11 @@
+<form class="completion-form" method="post"
+      action="{% url 'estudos:alternar_conclusao' tipo objeto.id %}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <button class="completion-toggle{% if objeto.status == 'concluido' %} is-complete{% endif %}"
+          type="submit"
+          aria-label="{% if objeto.status == 'concluido' %}Reabrir{% else %}Concluir{% endif %} {{ rotulo|default:tipo }}">
+    <i class="bi {% if objeto.status == 'concluido' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+    <span>{% if objeto.status == 'concluido' %}Concluído{% else %}Marcar como concluído{% endif %}</span>
+  </button>
+</form>

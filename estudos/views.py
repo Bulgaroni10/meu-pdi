@@ -1,10 +1,15 @@
+from datetime import timedelta
+
 from django.contrib import messages
+from django.http import JsonResponse
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import AulaForm, CursoForm, DisciplinaForm, PeriodoForm, TrilhaForm
-from .models import Aula, Curso, Disciplina, Periodo, Trilha
+from .models import Aula, Curso, Disciplina, Periodo, SessaoEstudo, StatusEstudo, Trilha
 from .selectors import cursos_do_usuario, disciplinas_do_usuario, resumo_estudos
 
 
@@ -126,6 +131,68 @@ def aula_detalhe(request, item_id):
         id=item_id,
     )
     return render(request, "estudos/aula_detalhe.html", {"aula": aula})
+
+
+@require_POST
+def alternar_conclusao(request, tipo, item_id):
+    configuracoes = {
+        "trilha": (Trilha, "Trilha", "estudos:trilhas"),
+        "curso": (Curso, "Curso", "estudos:cursos"),
+        "disciplina": (Disciplina, "Disciplina", "estudos:disciplinas"),
+        "aula": (Aula, "Conteúdo", "estudos:aulas"),
+    }
+    modelo, rotulo, retorno = configuracoes.get(tipo, (None, None, None))
+    if modelo is None:
+        return redirect("estudos:inicio")
+
+    item = get_object_or_404(modelo, id=item_id, usuario=request.user)
+    concluindo = item.status != StatusEstudo.CONCLUIDO
+    item.status = StatusEstudo.CONCLUIDO if concluindo else StatusEstudo.PLANEJADO
+    campos = ["status"]
+
+    if isinstance(item, (Trilha, Disciplina)):
+        item.progresso = 100 if concluindo else 0
+        campos.append("progresso")
+    if isinstance(item, Aula):
+        item.concluida = concluindo
+        campos.append("concluida")
+    if isinstance(item, Curso):
+        item.data_real_conclusao = timezone.localdate() if concluindo else None
+        campos.append("data_real_conclusao")
+
+    item.save(update_fields=campos + ["updated_at"])
+    acao = "concluído" if concluindo else "reaberto"
+    messages.success(request, f"{rotulo} {acao} com sucesso.")
+    proxima = request.POST.get("next")
+    if not proxima or not url_has_allowed_host_and_scheme(
+        proxima,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        proxima = retorno
+    return redirect(proxima)
+
+
+@require_POST
+def registrar_sessao(request):
+    try:
+        duracao_segundos = int(request.POST.get("duracao_segundos", "0"))
+    except (TypeError, ValueError):
+        duracao_segundos = 0
+    if not 1 <= duracao_segundos <= 86_400:
+        return JsonResponse(
+            {"ok": False, "erro": "O tempo deve estar entre 1 segundo e 24 horas."},
+            status=400,
+        )
+
+    encerrada_em = timezone.now()
+    SessaoEstudo.objects.create(
+        usuario=request.user,
+        iniciada_em=encerrada_em - timedelta(seconds=duracao_segundos),
+        encerrada_em=encerrada_em,
+        duracao_segundos=duracao_segundos,
+    )
+    return JsonResponse({"ok": True, "duracao_segundos": duracao_segundos})
 
 
 def confirmar_exclusao(request, tipo, item_id):

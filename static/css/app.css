@@ -1317,6 +1317,42 @@ h1 { margin: .25rem 0 .4rem; font-size: clamp(1.65rem, 3vw, 2.35rem); font-weigh
   font-size: .64rem;
 }
 .study-timer-panel > div:last-child { display: flex; gap: .55rem; }
+
+.study-timer-status {
+  min-height: 1.1rem;
+  margin-top: -.15rem !important;
+  color: var(--primary) !important;
+  font-weight: 700;
+}
+.study-timer-status:empty { display: none; }
+.study-timer-status.is-error { color: var(--danger) !important; }
+
+.completion-form { margin: .65rem 0 0; }
+.completion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  padding: .38rem .62rem;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: .64rem;
+  font-weight: 750;
+  transition: border-color .18s ease, background .18s ease, color .18s ease;
+}
+.completion-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.completion-toggle.is-complete {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+.discipline-row .completion-form,
+.detail-actions .completion-form { margin: 0; }
+.lesson-content .completion-form { margin-top: .55rem; }
 @keyframes timer-pulse {
   50% { opacity: .35; transform: scale(.72); }
 }

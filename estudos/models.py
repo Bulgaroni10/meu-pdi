@@ -233,3 +233,33 @@ class Aula(OwnedModel):
         if self.status == StatusEstudo.CONCLUIDO:
             self.concluida = True
         super().save(*args, **kwargs)
+
+
+class SessaoEstudo(OwnedModel):
+    """Tempo de foco registrado pelo cronômetro global."""
+
+    iniciada_em = models.DateTimeField("iniciada em")
+    encerrada_em = models.DateTimeField("encerrada em")
+    duracao_segundos = models.PositiveIntegerField("duração (segundos)")
+
+    class Meta:
+        ordering = ("-encerrada_em",)
+        indexes = [
+            models.Index(
+                fields=("usuario", "iniciada_em"),
+                name="sessao_usuario_inicio_idx",
+            )
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(duracao_segundos__gt=0),
+                name="sessao_duracao_positiva",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(encerrada_em__gte=models.F("iniciada_em")),
+                name="sessao_fim_apos_inicio",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.usuario} · {self.duracao_segundos}s"

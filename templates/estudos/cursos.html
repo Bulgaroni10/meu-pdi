@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Cursos | Meu PDI{% endblock %}{% block topbar_title %}Estudos{% endblock %}
 {% block content %}
-  <div class="page-heading study-heading"><div><span class="eyebrow">Formação estruturada</span><h1>Cursos</h1><p>Faculdade, pós, certificações e cursos livres em um só lugar.</p></div><div class="d-flex gap-2"><a class="btn btn-light" href="{% url 'estudos:periodo_criar' %}">Novo período</a><a class="btn btn-primary" href="{% url 'estudos:curso_criar' %}"><i class="bi bi-plus-lg me-2"></i>Novo curso</a></div></div>
+  <div class="page-heading study-heading">
+    <div><span class="eyebrow">Formação estruturada</span><h1>Cursos</h1><p>Faculdade, pós, certificações e cursos livres em um só lugar.</p></div>
+    <div class="d-flex gap-2"><a class="btn btn-light" href="{% url 'estudos:periodo_criar' %}">Novo período</a><a class="btn btn-primary" href="{% url 'estudos:curso_criar' %}"><i class="bi bi-plus-lg me-2"></i>Novo curso</a></div>
+  </div>
   {% include "estudos/_nav.html" %}
   <section class="study-card-grid">
     {% for curso in cursos %}
-      <article class="content-card study-entity-card"><div class="entity-card-top"><span class="study-list-icon"><i class="bi bi-mortarboard"></i></span><span class="badge-soft status-{{ curso.status }}">{{ curso.get_status_display }}</span></div><span class="eyebrow">{{ curso.get_tipo_display }}</span><h2><a href="{% url 'estudos:curso_detalhe' curso.id %}">{{ curso.nome }}</a></h2><p>{{ curso.instituicao|default:"Instituição não informada" }}</p><div class="entity-counts"><span><strong>{{ curso.periodos.count }}</strong> períodos</span><span><strong>{{ curso.disciplinas.count }}</strong> disciplinas</span><span><strong>{{ curso.carga_horaria }}h</strong> carga</span></div><footer><span>{{ curso.data_prevista_conclusao|date:"d/m/Y"|default:"Sem prazo" }}</span><a href="{% url 'estudos:curso_editar' curso.id %}">Editar</a></footer></article>
-    {% empty %}<div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-mortarboard"></i></span><strong>Nenhum curso cadastrado</strong><p>Cadastre sua formação atual ou um curso planejado.</p><a class="btn btn-primary" href="{% url 'estudos:curso_criar' %}">Cadastrar curso</a></div>{% endfor %}
+      <article class="content-card study-entity-card">
+        <div class="entity-card-top"><span class="study-list-icon"><i class="bi bi-mortarboard"></i></span><span class="badge-soft status-{{ curso.status }}">{{ curso.get_status_display }}</span></div>
+        <span class="eyebrow">{{ curso.get_tipo_display }}</span>
+        <h2><a href="{% url 'estudos:curso_detalhe' curso.id %}">{{ curso.nome }}</a></h2>
+        <p>{{ curso.instituicao|default:"Instituição não informada" }}</p>
+        <div class="entity-counts"><span><strong>{{ curso.periodos.count }}</strong> períodos</span><span><strong>{{ curso.disciplinas.count }}</strong> disciplinas</span><span><strong>{{ curso.carga_horaria }}h</strong> carga</span></div>
+        {% include "estudos/_completion_button.html" with objeto=curso tipo="curso" rotulo="curso" %}
+        <footer><span>{{ curso.data_prevista_conclusao|date:"d/m/Y"|default:"Sem prazo" }}</span><a href="{% url 'estudos:curso_editar' curso.id %}">Editar</a></footer>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-mortarboard"></i></span><strong>Nenhum curso cadastrado</strong><p>Cadastre sua formação atual ou um curso planejado.</p><a class="btn btn-primary" href="{% url 'estudos:curso_criar' %}">Cadastrar curso</a></div>
+    {% endfor %}
   </section>
 {% endblock %}

@@ -1,6 +1,7 @@
 from datetime import timedelta
 
-from django.db.models import Avg
+from django.db.models import Avg, Sum
+from django.db.models.functions import TruncDate
 from django.urls import reverse
 from django.utils import timezone
 
@@ -8,7 +9,7 @@ from anotacoes.models import Anotacao
 from certificacoes.models import Certificacao
 from competencias.models import Competencia
 from competencias.selectors import competencias_do_usuario
-from estudos.models import Aula, Trilha
+from estudos.models import Aula, SessaoEstudo, Trilha
 from objetivos.models import Objetivo
 from projetos.models import Evidencia, Projeto
 from revisoes.models import AcaoRevisao, RevisaoPeriodica
@@ -121,13 +122,28 @@ def ritmo_estudos(usuario, quantidade_semanas=8) -> list[dict]:
     ).values_list("data", "duracao_estudada")
     for data, minutos in aulas:
         inicio = data - timedelta(days=data.weekday())
-        totais[inicio] += minutos
+        totais[inicio] += minutos * 60
+
+    sessoes = (
+        SessaoEstudo.objects.filter(
+            usuario=usuario,
+            iniciada_em__date__range=(primeiro_dia, hoje),
+        )
+        .annotate(data=TruncDate("iniciada_em"))
+        .values("data")
+        .annotate(total=Sum("duracao_segundos"))
+    )
+    for sessao in sessoes:
+        data = sessao["data"]
+        inicio = data - timedelta(days=data.weekday())
+        totais[inicio] += sessao["total"]
 
     maior_total = max(totais.values(), default=0)
     semanas = []
-    for inicio, minutos in totais.items():
-        horas = round(minutos / 60, 1)
-        altura = round(minutos * 100 / maior_total) if maior_total else 0
+    for inicio, segundos in totais.items():
+        minutos = round(segundos / 60)
+        horas = round(segundos / 3600, 1)
+        altura = round(segundos * 100 / maior_total) if maior_total else 0
         semanas.append(
             {
                 "inicio": inicio,

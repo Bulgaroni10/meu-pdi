@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from estudos.models import Aula, Curso, Disciplina, Trilha
+from estudos.models import Aula, Curso, Disciplina, SessaoEstudo, StatusEstudo, Trilha
 from usuarios.models import Usuario
 
 
@@ -143,3 +143,92 @@ class EstudosViewTests(TestCase):
 
         self.assertEqual(response.status_code, 405)
         self.assertTrue(Aula.objects.filter(id=aula.id).exists())
+
+    def test_registra_tempo_do_cronometro(self):
+        response = self.client.post(
+            reverse("estudos:registrar_sessao"),
+            {"duracao_segundos": 5_400},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        sessao = SessaoEstudo.objects.get()
+        self.assertEqual(sessao.usuario, self.usuario)
+        self.assertEqual(sessao.duracao_segundos, 5_400)
+        self.assertEqual(
+            round((sessao.encerrada_em - sessao.iniciada_em).total_seconds()),
+            5_400,
+        )
+
+    def test_rejeita_tempo_invalido_do_cronometro(self):
+        response = self.client.post(
+            reverse("estudos:registrar_sessao"),
+            {"duracao_segundos": 0},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json()["ok"])
+        self.assertFalse(SessaoEstudo.objects.exists())
+
+    def test_alterna_conclusao_de_trilha_curso_disciplina_e_aula(self):
+        trilha = Trilha.objects.create(
+            usuario=self.usuario,
+            titulo="Cloud",
+            categoria=Trilha.Categoria.AZURE,
+        )
+        curso = Curso.objects.create(
+            usuario=self.usuario,
+            nome="Fundamentos",
+            tipo=Curso.Tipo.LIVRE,
+        )
+        disciplina = Disciplina.objects.create(
+            usuario=self.usuario,
+            curso=curso,
+            nome="Infraestrutura",
+        )
+        aula = Aula.objects.create(
+            usuario=self.usuario,
+            disciplina=disciplina,
+            titulo="Redes",
+        )
+
+        for tipo, item in (
+            ("trilha", trilha),
+            ("curso", curso),
+            ("disciplina", disciplina),
+            ("aula", aula),
+        ):
+            response = self.client.post(
+                reverse("estudos:alternar_conclusao", args=[tipo, item.id])
+            )
+            self.assertEqual(response.status_code, 302)
+            item.refresh_from_db()
+            self.assertEqual(item.status, StatusEstudo.CONCLUIDO)
+
+        self.assertEqual(trilha.progresso, 100)
+        self.assertEqual(disciplina.progresso, 100)
+        self.assertTrue(aula.concluida)
+        self.assertEqual(curso.data_real_conclusao, timezone.localdate())
+
+        self.client.post(
+            reverse("estudos:alternar_conclusao", args=["aula", aula.id])
+        )
+        aula.refresh_from_db()
+        self.assertEqual(aula.status, StatusEstudo.PLANEJADO)
+        self.assertFalse(aula.concluida)
+
+    def test_nao_altera_item_de_outro_perfil(self):
+        outro = Usuario.objects.create_user(email="outro2@example.com", nome="Outro")
+        trilha = Trilha.objects.create(
+            usuario=outro,
+            titulo="Privada",
+            categoria=Trilha.Categoria.OUTRO,
+        )
+
+        response = self.client.post(
+            reverse("estudos:alternar_conclusao", args=["trilha", trilha.id])
+        )
+
+        self.assertEqual(response.status_code, 404)
+        trilha.refresh_from_db()
+        self.assertEqual(trilha.status, StatusEstudo.PLANEJADO)

@@ -23,6 +23,16 @@ urlpatterns = [
     path("aulas/<uuid:item_id>/", views.aula_detalhe, name="aula_detalhe"),
     path("aulas/<uuid:item_id>/editar/", views.aula_editar, name="aula_editar"),
     path(
+        "conclusao/<str:tipo>/<uuid:item_id>/alternar/",
+        views.alternar_conclusao,
+        name="alternar_conclusao",
+    ),
+    path(
+        "sessoes/registrar/",
+        views.registrar_sessao,
+        name="registrar_sessao",
+    ),
+    path(
         "excluir/<str:tipo>/<uuid:item_id>/",
         views.confirmar_exclusao,
         name="confirmar_exclusao",

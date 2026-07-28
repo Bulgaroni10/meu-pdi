@@ -13,6 +13,7 @@
   const timerDisplay = document.getElementById("studyTimerDisplay");
   const timerToggle = document.getElementById("studyTimerToggle");
   const timerReset = document.getElementById("studyTimerReset");
+  const timerStatus = document.getElementById("studyTimerStatus");
 
   const updateThemeIcon = () => {
     if (!themeToggle) return;
@@ -94,6 +95,23 @@
   };
 
   const saveTimer = () => localStorage.setItem(TIMER_KEY, JSON.stringify(timerState));
+  const setTimerStatus = (message, isError = false) => {
+    if (!timerStatus) return;
+    timerStatus.textContent = message;
+    timerStatus.classList.toggle("is-error", isError);
+  };
+  const csrfToken = () => {
+    const cookieToken = document.cookie
+      .split(";")
+      .map((item) => item.trim())
+      .find((item) => item.startsWith("csrftoken="))
+      ?.split("=")
+      .slice(1)
+      .join("=");
+    return cookieToken || document.querySelector(
+      "#studyTimerCsrfForm input[name='csrfmiddlewaretoken']"
+    )?.value || "";
+  };
   const renderTimer = () => {
     if (!timerDisplay || !timerToggle) return;
     timerDisplay.textContent = formatTimer(elapsedSeconds());
@@ -110,7 +128,16 @@
     timerLauncher.setAttribute("aria-expanded", String(open));
   };
 
-  timerLauncher?.addEventListener("click", () => setTimerPanel(timerPanel.hidden));
+  timerLauncher?.addEventListener("click", () => {
+    const opening = timerPanel.hidden;
+    setTimerPanel(opening);
+    if (opening && !timerState.startedAt) {
+      timerState.startedAt = Date.now();
+      saveTimer();
+      setTimerStatus(timerState.elapsed ? "Cronômetro retomado." : "Cronômetro iniciado.");
+      renderTimer();
+    }
+  });
   timerClose?.addEventListener("click", () => setTimerPanel(false));
   timerToggle?.addEventListener("click", () => {
     if (timerState.startedAt) {
@@ -122,11 +149,49 @@
     saveTimer();
     renderTimer();
   });
-  timerReset?.addEventListener("click", () => {
-    if (!window.confirm("Zerar o cronômetro desta sessão?")) return;
+  timerReset?.addEventListener("click", async () => {
+    const seconds = elapsedSeconds();
+    if (seconds === 0) {
+      setTimerStatus("O cronômetro já está zerado.");
+      return;
+    }
+
+    const shouldSave = window.confirm(
+      `Deseja adicionar ${formatTimer(seconds)} ao tempo de estudos desta semana?`
+    );
+    if (shouldSave) {
+      timerReset.disabled = true;
+      timerToggle.disabled = true;
+      setTimerStatus("Salvando tempo de estudo...");
+      try {
+        const response = await fetch(timerPanel.dataset.registerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "X-CSRFToken": csrfToken(),
+          },
+          body: new URLSearchParams({ duracao_segundos: String(seconds) }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          throw new Error(result.erro || "Não foi possível salvar o tempo.");
+        }
+        setTimerStatus(`${formatTimer(seconds)} adicionado às horas desta semana.`);
+      } catch (error) {
+        setTimerStatus(error.message || "Não foi possível salvar o tempo.", true);
+        timerReset.disabled = false;
+        timerToggle.disabled = false;
+        return;
+      }
+    } else {
+      setTimerStatus("Cronômetro zerado sem registrar o tempo.");
+    }
+
     timerState = { elapsed: 0, startedAt: null };
     saveTimer();
     renderTimer();
+    timerReset.disabled = false;
+    timerToggle.disabled = false;
   });
   window.setInterval(renderTimer, 1000);
   renderTimer();

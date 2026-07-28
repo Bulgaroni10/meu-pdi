@@ -1,12 +1,13 @@
 from datetime import timedelta
 
 from django.db.models import Q, Sum
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 
 from certificacoes.models import Certificacao
 from competencias.selectors import competencias_do_usuario
 from core.selectors import progresso_geral
-from estudos.models import Aula
+from estudos.models import Aula, SessaoEstudo
 from objetivos.models import Objetivo
 from projetos.models import Evidencia, Projeto, TarefaProjeto
 from revisoes.models import AcaoRevisao, RevisaoPeriodica
@@ -32,6 +33,19 @@ def horas_por_mes(usuario, quantidade=6):
         chave = data.replace(day=1)
         if chave in totais:
             totais[chave] += minutos
+    sessoes = (
+        SessaoEstudo.objects.filter(
+            usuario=usuario,
+            iniciada_em__date__gte=meses[0],
+        )
+        .annotate(data=TruncDate("iniciada_em"))
+        .values("data")
+        .annotate(segundos=Sum("duracao_segundos"))
+    )
+    for sessao in sessoes:
+        chave = sessao["data"].replace(day=1)
+        if chave in totais:
+            totais[chave] += sessao["segundos"] / 60
     maior = max(totais.values(), default=0)
     nomes = ("JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ")
     return [
@@ -137,6 +151,13 @@ def visao_indicadores(usuario):
         ]
         or 0
     )
+    segundos_cronometro = (
+        SessaoEstudo.objects.filter(usuario=usuario).aggregate(
+            total=Sum("duracao_segundos")
+        )["total"]
+        or 0
+    )
+    minutos_total += segundos_cronometro / 60
     acoes_atrasadas = (
         AcaoRevisao.objects.filter(usuario=usuario, prazo__lt=hoje)
         .exclude(

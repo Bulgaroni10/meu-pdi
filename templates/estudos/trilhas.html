@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Trilhas | Meu PDI{% endblock %}{% block topbar_title %}Estudos{% endblock %}
 {% block content %}
-  <div class="page-heading study-heading"><div><span class="eyebrow">Caminhos por área</span><h1>Trilhas de estudo</h1><p>Agrupe cursos e competências em uma sequência com propósito.</p></div><a class="btn btn-primary" href="{% url 'estudos:trilha_criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova trilha</a></div>
+  <div class="page-heading study-heading">
+    <div><span class="eyebrow">Caminhos por área</span><h1>Trilhas de estudo</h1><p>Agrupe cursos e competências em uma sequência com propósito.</p></div>
+    <a class="btn btn-primary" href="{% url 'estudos:trilha_criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova trilha</a>
+  </div>
   {% include "estudos/_nav.html" %}
   <section class="study-card-grid">
     {% for trilha in trilhas %}
-      <article class="content-card study-entity-card"><div class="entity-card-top"><span class="study-list-icon"><i class="bi bi-signpost-2"></i></span><span class="badge-soft status-{{ trilha.status }}">{{ trilha.get_status_display }}</span></div><span class="eyebrow">{{ trilha.get_categoria_display }}</span><h2>{{ trilha.titulo }}</h2><p>{{ trilha.descricao|default:"Sem descrição."|truncatechars:120 }}</p><div class="entity-progress"><div><span>Progresso</span><strong>{{ trilha.progresso }}%</strong></div><div class="progress"><div class="progress-bar" style="width:{{ trilha.progresso }}%"></div></div></div><footer><span>{{ trilha.carga_horaria_realizada }}h de {{ trilha.carga_horaria_prevista }}h</span><a href="{% url 'estudos:trilha_editar' trilha.id %}">Editar</a></footer></article>
-    {% empty %}<div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-signpost"></i></span><strong>Nenhuma trilha cadastrada</strong><p>Comece por uma área que deseja desenvolver.</p><a class="btn btn-primary" href="{% url 'estudos:trilha_criar' %}">Criar trilha</a></div>{% endfor %}
+      <article class="content-card study-entity-card">
+        <div class="entity-card-top"><span class="study-list-icon"><i class="bi bi-signpost-2"></i></span><span class="badge-soft status-{{ trilha.status }}">{{ trilha.get_status_display }}</span></div>
+        <span class="eyebrow">{{ trilha.get_categoria_display }}</span>
+        <h2>{{ trilha.titulo }}</h2>
+        <p>{{ trilha.descricao|default:"Sem descrição."|truncatechars:120 }}</p>
+        <div class="entity-progress"><div><span>Progresso</span><strong>{{ trilha.progresso }}%</strong></div><div class="progress"><div class="progress-bar" style="width:{{ trilha.progresso }}%"></div></div></div>
+        {% include "estudos/_completion_button.html" with objeto=trilha tipo="trilha" rotulo="trilha" %}
+        <footer><span>{{ trilha.carga_horaria_realizada }}h de {{ trilha.carga_horaria_prevista }}h</span><a href="{% url 'estudos:trilha_editar' trilha.id %}">Editar</a></footer>
+      </article>
+    {% empty %}
+      <div class="content-card empty-state study-full-empty"><span class="empty-icon"><i class="bi bi-signpost"></i></span><strong>Nenhuma trilha cadastrada</strong><p>Comece por uma área que deseja desenvolver.</p><a class="btn btn-primary" href="{% url 'estudos:trilha_criar' %}">Criar trilha</a></div>
+    {% endfor %}
   </section>
 {% endblock %}

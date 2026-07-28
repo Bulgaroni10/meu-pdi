@@ -1,7 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
+from datetime import timedelta
+
 from django.utils import timezone
 
+from estudos.models import SessaoEstudo
 from objetivos.models import Objetivo
 from usuarios.models import Usuario
 
@@ -59,3 +62,21 @@ class IndicadoresViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Relatório executivo do PDI")
         self.assertContains(response, "Imprimir ou salvar em PDF")
+
+    def test_cronometro_entra_nos_indicadores_de_horas(self):
+        agora = timezone.now()
+        SessaoEstudo.objects.create(
+            usuario=self.usuario,
+            iniciada_em=agora - timedelta(hours=2),
+            encerrada_em=agora,
+            duracao_segundos=7_200,
+        )
+
+        response = self.client.get(reverse("indicadores:painel"))
+
+        horas = next(
+            item for item in response.context["kpis"]
+            if item["rotulo"] == "Horas registradas"
+        )
+        self.assertEqual(horas["valor"], "2h")
+        self.assertEqual(response.context["meses_estudo"][-1]["horas"], 2)

@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from objetivos.models import Objetivo
+from estudos.models import SessaoEstudo
 from usuarios.models import Usuario
 
 
@@ -45,6 +46,23 @@ class DashboardTests(TestCase):
         self.assertContains(response, "Concluir especialização")
         self.assertContains(response, "Estudar o próximo módulo")
         self.assertEqual(response.context["periodo_pdi"]["restante"], "10d")
+
+    def test_dashboard_soma_cronometro_nas_horas_da_semana(self):
+        self.client.get(reverse("core:dashboard"))
+        usuario = Usuario.objects.get(pk=1)
+        agora = timezone.now()
+        SessaoEstudo.objects.create(
+            usuario=usuario,
+            iniciada_em=agora - timedelta(hours=1, minutes=30),
+            encerrada_em=agora,
+            duracao_segundos=5_400,
+        )
+
+        response = self.client.get(reverse("core:dashboard"))
+
+        semana_atual = response.context["semanas_estudo"][-1]
+        self.assertEqual(semana_atual["horas"], 1.5)
+        self.assertContains(response, "1.5h")
 
     def test_busca_global_encontra_apenas_dados_do_perfil_pessoal(self):
         self.client.get(reverse("core:dashboard"))
