@@ -51,7 +51,7 @@ class ObjetivoViewTests(TestCase):
         response = self.client.get(reverse("objetivos:lista"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Meus objetivos")
+        self.assertContains(response, "Metas com Prazos")
 
     def test_formulario_de_criacao_renderiza(self):
         response = self.client.get(reverse("objetivos:criar"))

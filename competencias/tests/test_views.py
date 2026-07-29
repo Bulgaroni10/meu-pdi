@@ -40,7 +40,7 @@ class CompetenciaViewTests(TestCase):
         response = self.client.get(reverse("competencias:lista"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Minhas competências")
+        self.assertContains(response, "Soft Skills")
         self.assertContains(response, "Microsoft Azure")
 
     def test_cria_competencia_para_perfil_pessoal(self):

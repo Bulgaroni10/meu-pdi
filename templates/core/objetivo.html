@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Objetivo de carreira | Meu PDI{% endblock %}
+{% block topbar_title %}Objetivo{% endblock %}
+
+{% block content %}
+  <section class="reference-page-heading">
+    <span class="eyebrow">Direção profissional</span>
+    <h1>Objetivo de Carreira</h1>
+    <p>O destino profissional que orienta suas metas, estudos, projetos e decisões.</p>
+  </section>
+
+  <section class="career-objective-card">
+    <span class="career-objective-icon"><i class="bi bi-compass"></i></span>
+    <div>
+      <small>Quero me tornar</small>
+      <h2>{{ request.user.cargo_desejado|default:"Defina o cargo que você deseja alcançar" }}</h2>
+      <p>{{ request.user.objetivo_principal|default:"Escreva por que esse objetivo é importante e como pretende alcançá-lo." }}</p>
+    </div>
+    <a class="btn btn-light" href="{% url 'usuarios:perfil' %}"><i class="bi bi-pencil me-2"></i>Editar objetivo</a>
+  </section>
+
+  <section class="reference-section">
+    <div class="reference-section-heading">
+      <div>
+        <h2>Metas que sustentam este objetivo</h2>
+        <p>Transforme a direção de carreira em passos concretos e mensuráveis.</p>
+      </div>
+      <a class="btn btn-primary" href="{% url 'objetivos:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova meta</a>
+    </div>
+    {% if metas %}
+      <div class="career-goal-grid">
+        {% for meta in metas %}
+          <a class="career-goal-card" href="{% url 'objetivos:detalhe' meta.id %}">
+            <span>{{ meta.get_status_display }}</span>
+            <h3>{{ meta.titulo }}</h3>
+            <div class="progress"><div class="progress-bar" style="width: {{ meta.progresso }}%"></div></div>
+            <small>{{ meta.progresso }}% concluído{% if meta.prazo %} · até {{ meta.prazo|date:"d/m/Y" }}{% endif %}</small>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="reference-empty compact">
+        <span><i class="bi bi-bullseye"></i></span>
+        <strong>Nenhuma meta cadastrada</strong>
+        <p>Crie sua primeira meta quando estiver pronto.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

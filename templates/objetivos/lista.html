@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Objetivos | Meu PDI{% endblock %}
-{% block topbar_title %}Objetivos{% endblock %}
+{% block title %}Metas | Meu PDI{% endblock %}
+{% block topbar_title %}Metas{% endblock %}
 
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
       <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Objetivos</li>
+      <li class="breadcrumb-item active" aria-current="page">Metas</li>
     </ol>
   </nav>
 
   <div class="page-heading objective-heading">
     <div>
-      <span class="eyebrow">Direção e intenção</span>
-      <h1>Meus objetivos</h1>
-      <p>Defina resultados claros e acompanhe o que realmente move sua evolução.</p>
+      <span class="eyebrow">Planejamento</span>
+      <h1>Metas com Prazos</h1>
+      <p>Objetivos definidos com datas, prioridades e progresso para manter seu desenvolvimento mensurável.</p>
     </div>
     <a class="btn btn-primary" href="{% url 'objetivos:criar' %}">
-      <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Novo objetivo
+      <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nova meta
     </a>
   </div>
 

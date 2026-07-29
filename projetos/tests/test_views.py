@@ -53,7 +53,7 @@ class ProjetoViewTests(TestCase):
         response = self.client.get(reverse("projetos:lista"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Meus projetos")
+        self.assertContains(response, "Contribuições")
 
     def test_cria_projeto_para_perfil_pessoal(self):
         response = self.client.post(reverse("projetos:criar"), self.dados_projeto())

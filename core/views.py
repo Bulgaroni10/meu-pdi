@@ -93,6 +93,11 @@ def dashboard(request):
     return render(request, "core/dashboard.html", context)
 
 
+def objetivo(request):
+    metas = objetivos_do_usuario(request.user).filter(arquivado_em__isnull=True)
+    return render(request, "core/objetivo.html", {"metas": metas})
+
+
 def _periodo_legivel(dias):
     anos, resto = divmod(max(0, dias), 365)
     meses, dias = divmod(resto, 30)

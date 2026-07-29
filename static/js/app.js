@@ -1,12 +1,10 @@
 (() => {
-  const root = document.documentElement;
   const shell = document.getElementById("appShell");
   const sidebar = document.getElementById("sidebar");
   const backdrop = document.getElementById("sidebarBackdrop");
   const mobileMenu = document.getElementById("mobileMenu");
   const mobileMenuClose = document.getElementById("mobileMenuClose");
   const collapse = document.getElementById("sidebarCollapse");
-  const themeToggle = document.getElementById("themeToggle");
   const globalSearchInput = document.getElementById("globalSearchInput");
   const timerLauncher = document.getElementById("studyTimerLauncher");
   const timerPanel = document.getElementById("studyTimerPanel");
@@ -15,20 +13,6 @@
   const timerToggle = document.getElementById("studyTimerToggle");
   const timerReset = document.getElementById("studyTimerReset");
   const timerStatus = document.getElementById("studyTimerStatus");
-
-  const updateThemeIcon = () => {
-    if (!themeToggle) return;
-    const dark = root.dataset.bsTheme === "dark";
-    themeToggle.innerHTML = `<i class="bi ${dark ? "bi-sun" : "bi-moon-stars"}" aria-hidden="true"></i>`;
-    themeToggle.setAttribute("aria-label", dark ? "Ativar tema claro" : "Ativar tema escuro");
-  };
-
-  themeToggle?.addEventListener("click", () => {
-    const next = root.dataset.bsTheme === "dark" ? "light" : "dark";
-    root.dataset.bsTheme = next;
-    localStorage.setItem("meu-pdi-theme", next);
-    updateThemeIcon();
-  });
 
   const closeMobileMenu = () => {
     sidebar?.classList.remove("mobile-open");
@@ -72,7 +56,6 @@
     localStorage.setItem("meu-pdi-sidebar", next ? "collapsed" : "expanded");
   });
 
-  updateThemeIcon();
 
   const TIMER_KEY = "meu-pdi-study-timer";
   let timerState = { elapsed: 0, startedAt: null };

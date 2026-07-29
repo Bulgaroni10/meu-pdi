@@ -44,7 +44,6 @@ class DashboardTests(TestCase):
         self.assertEqual(response.context["progresso_geral"]["cobertura"], 25)
         self.assertEqual(len(response.context["semanas_estudo"]), 8)
         self.assertContains(response, "Concluir especialização")
-        self.assertContains(response, "Estudar o próximo módulo")
         self.assertEqual(response.context["periodo_pdi"]["restante"], "10d")
 
     def test_dashboard_soma_cronometro_nas_horas_da_semana(self):
@@ -62,7 +61,21 @@ class DashboardTests(TestCase):
 
         semana_atual = response.context["semanas_estudo"][-1]
         self.assertEqual(semana_atual["horas"], 1.5)
-        self.assertContains(response, "1.5h")
+
+    def test_pagina_de_objetivo_exibe_as_metas_do_usuario(self):
+        self.client.get(reverse("core:dashboard"))
+        usuario = Usuario.objects.get(pk=1)
+        Objetivo.objects.create(
+            usuario=usuario,
+            titulo="Minha primeira meta",
+            progresso=20,
+        )
+
+        response = self.client.get(reverse("core:objetivo"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Objetivo de Carreira")
+        self.assertContains(response, "Minha primeira meta")
 
     def test_busca_global_encontra_apenas_dados_do_perfil_pessoal(self):
         self.client.get(reverse("core:dashboard"))

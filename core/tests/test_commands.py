@@ -69,3 +69,33 @@ class ReplaceCloudPlanCommandTests(TestCase):
         self.assertEqual(EtapaRoadmap.objects.filter(usuario=self.usuario).count(), 48)
         self.assertEqual(Projeto.objects.filter(usuario=self.usuario).count(), 8)
         self.assertEqual(Aula.objects.filter(usuario=self.usuario).count(), 48)
+
+
+class ResetPdiDataCommandTests(TestCase):
+    def setUp(self):
+        self.usuario = Usuario.objects.create_user(
+            id=1,
+            email="pessoal@meupdi.local",
+            password="senha-preservada",
+            nome="Kauan",
+            cargo_atual="Analista",
+            github_url="https://github.com/exemplo",
+        )
+
+    def test_exige_confirmacao_explicita(self):
+        with self.assertRaises(CommandError):
+            call_command("reset_pdi_data")
+
+    def test_limpa_conteudo_e_perfil_sem_apagar_conta_ou_senha(self):
+        Objetivo.objects.create(usuario=self.usuario, titulo="Meta antiga")
+        senha_anterior = self.usuario.password
+
+        call_command("reset_pdi_data", "--confirm")
+
+        self.usuario.refresh_from_db()
+        self.assertFalse(Objetivo.objects.filter(usuario=self.usuario).exists())
+        self.assertEqual(self.usuario.password, senha_anterior)
+        self.assertEqual(self.usuario.cargo_atual, "")
+        self.assertEqual(self.usuario.github_url, "")
+        self.assertEqual(self.usuario.nome, "Kauan")
+        self.assertEqual(self.usuario.email, "pessoal@meupdi.local")

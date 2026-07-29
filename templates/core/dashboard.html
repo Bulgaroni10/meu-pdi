@@ -1,41 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | Meu PDI{% endblock %}
-{% block topbar_title %}Visão geral{% endblock %}
+{% block title %}Sobre | Meu PDI{% endblock %}
+{% block topbar_title %}Sobre{% endblock %}
 
 {% block content %}
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-3">
-      <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-    </ol>
-  </nav>
-
-  <section class="pdi-intro">
+  <section class="pdi-intro reference-hero">
     <article class="pdi-about">
-      <span class="eyebrow">Plano de Desenvolvimento Individual</span>
-      <h1>Olá, eu sou <span>{{ request.user.nome|default:request.user.get_short_name }}</span>.</h1>
-      <strong class="pdi-current-role">{{ request.user.cargo_atual|default:"Em desenvolvimento profissional" }}</strong>
+      <span class="hero-badge"><i class="bi bi-stars"></i> Plano de Desenvolvimento Individual</span>
+      <h1>Olá, eu sou <span>{{ request.user.nome|default:request.user.get_short_name }}</span></h1>
+      <strong class="pdi-current-role">{{ request.user.cargo_atual|default:"Defina seu título profissional" }}</strong>
       {% if competencias_destaque %}
         <div class="pdi-skill-tags" aria-label="Competências em destaque">
           {% for competencia in competencias_destaque %}<span>{{ competencia.nome }}</span>{% endfor %}
         </div>
       {% endif %}
-      <p>{{ request.user.resumo_profissional|default:request.user.objetivo_principal|default:"Este espaço reúne minha direção profissional, estudos, projetos e evidências de evolução." }}</p>
+      <p>{{ request.user.resumo_profissional|default:"Conte aqui quem você é, o que está estudando e onde deseja chegar." }}</p>
       <div class="pdi-profile-links">
         {% if request.user.github_url %}<a class="btn btn-primary" href="{{ request.user.github_url }}" target="_blank" rel="noopener"><i class="bi bi-github me-2"></i>GitHub</a>{% endif %}
         {% if request.user.linkedin_url %}<a class="btn btn-light" href="{{ request.user.linkedin_url }}" target="_blank" rel="noopener"><i class="bi bi-linkedin me-2"></i>LinkedIn</a>{% endif %}
-        <a class="btn btn-light" href="{% url 'usuarios:perfil' %}"><i class="bi bi-pencil me-2"></i>Editar apresentação</a>
+        <a class="btn btn-light" href="{% url 'usuarios:perfil' %}"><i class="bi bi-pencil me-2"></i>Editar perfil</a>
       </div>
     </article>
 
     <aside class="pdi-identity-card">
       <header>
         <span class="profile-avatar">{{ request.user.get_short_name|slice:":1"|upper }}</span>
-        <div><strong>{{ request.user.nome|default:request.user.email }}</strong><small>{{ request.user.cargo_atual|default:"Meu perfil profissional" }}</small></div>
+        <div>
+          <strong>{{ request.user.nome|default:request.user.email }}</strong>
+          <small>{{ request.user.cargo_atual|default:"Seu perfil profissional" }}</small>
+        </div>
       </header>
       <dl>
         {% if request.user.localizacao %}<div><dt><i class="bi bi-geo-alt"></i></dt><dd>{{ request.user.localizacao }}</dd></div>{% endif %}
-        <div><dt><i class="bi bi-arrow-up-right-circle"></i></dt><dd>{{ request.user.cargo_desejado|default:"Defina seu cargo desejado" }}</dd></div>
+        <div><dt><i class="bi bi-briefcase"></i></dt><dd>{{ request.user.cargo_desejado|default:"Cadastre seu objetivo de carreira" }}</dd></div>
         {% if periodo_pdi %}<div><dt><i class="bi bi-calendar3"></i></dt><dd>{{ periodo_pdi.inicio|date:"M. Y" }} — {{ periodo_pdi.fim|date:"M. Y" }}</dd></div>{% endif %}
       </dl>
       {% if periodo_pdi %}
@@ -46,129 +43,41 @@
         <div class="pdi-time-progress"><span style="width: {{ periodo_pdi.percentual }}%"></span></div>
         <small class="pdi-plan-caption">{{ periodo_pdi.percentual }}% do período planejado já transcorreu</small>
       {% else %}
-        <a class="text-link" href="{% url 'objetivos:criar' %}">Definir objetivo com prazo <i class="bi bi-arrow-right"></i></a>
+        <a class="text-link" href="{% url 'objetivos:criar' %}">Criar sua primeira meta <i class="bi bi-arrow-right"></i></a>
       {% endif %}
     </aside>
   </section>
 
-  <section class="kpi-grid" aria-label="Indicadores principais">
-    {% for kpi in kpis %}
-      <article class="kpi-card">
-        <div class="kpi-icon text-bg-{{ kpi.tom }}">
-          <i class="bi {{ kpi.icone }}" aria-hidden="true"></i>
-        </div>
+  <section class="reference-section">
+    <div class="reference-section-heading">
+      <div>
+        <h2>Eventos e Participações</h2>
+        <p>Projetos, estudos e conquistas que registram sua evolução profissional.</p>
+      </div>
+      <a class="btn btn-primary" href="{% url 'projetos:criar' %}"><i class="bi bi-plus-lg me-2"></i>Adicionar projeto</a>
+    </div>
+
+    {% if atividades_recentes %}
+      <div class="reference-event-grid">
+        {% for item in atividades_recentes %}
+          <a class="reference-event-card" href="{{ item.url }}">
+            <span class="reference-event-icon"><i class="bi {{ item.icone }}"></i></span>
+            <small>{{ item.tipo }}</small>
+            <strong>{{ item.titulo }}</strong>
+            <span>{{ item.data|date:"d/m/Y" }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="reference-empty">
+        <span><i class="bi bi-stars"></i></span>
+        <strong>Seu PDI está pronto para começar</strong>
+        <p>Cadastre seu perfil, sua primeira meta e os projetos que fizerem parte da sua jornada.</p>
         <div>
-          <span>{{ kpi.rotulo }}</span>
-          <strong>{{ kpi.valor }}</strong>
+          <a class="btn btn-primary" href="{% url 'usuarios:perfil' %}">Preencher perfil</a>
+          <a class="btn btn-light" href="{% url 'objetivos:criar' %}">Criar primeira meta</a>
         </div>
-      </article>
-    {% endfor %}
+      </div>
+    {% endif %}
   </section>
-
-  <div class="dashboard-grid">
-    <section class="content-card focus-card">
-      <div class="card-heading">
-        <div>
-          <span class="eyebrow">Foco atual</span>
-          <h2>{% if objetivo_principal %}{{ objetivo_principal.titulo }}{% else %}Defina seu primeiro objetivo{% endif %}</h2>
-        </div>
-        <span class="status-pill">{% if objetivo_principal %}{{ objetivo_principal.status_efetivo_label }}{% else %}Comece por aqui{% endif %}</span>
-      </div>
-      {% if objetivo_principal %}
-        <div class="focus-progress">
-          <div><span>Progresso</span><strong>{{ objetivo_principal.progresso }}%</strong></div>
-          <div class="progress" role="progressbar" aria-label="Progresso do objetivo" aria-valuenow="{{ objetivo_principal.progresso }}" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" style="width: {{ objetivo_principal.progresso }}%"></div>
-          </div>
-        </div>
-        <div class="focus-next">
-          <span>Próxima ação</span>
-          <p>{{ objetivo_principal.proxima_acao|default:"Defina a próxima ação concreta deste objetivo." }}</p>
-        </div>
-        <a class="text-link" href="{% url 'objetivos:detalhe' objetivo_principal.id %}">Abrir objetivo <i class="bi bi-arrow-right"></i></a>
-      {% else %}
-        <div class="empty-state compact-empty">
-          <span class="empty-icon"><i class="bi bi-bullseye"></i></span>
-          <p>Crie uma meta para orientar seu roadmap e seus estudos.</p>
-          <a class="btn btn-primary" href="{% url 'objetivos:criar' %}">Criar objetivo</a>
-        </div>
-      {% endif %}
-    </section>
-
-    <aside class="content-card deadline-card">
-      <div class="card-heading">
-        <div>
-          <span class="eyebrow">Planejamento</span>
-          <h2>Próximos prazos</h2>
-        </div>
-      </div>
-      {% if proximos_prazos %}
-        <div class="dashboard-list">
-          {% for item in proximos_prazos %}
-            <a href="{{ item.url }}">
-              <span class="recent-objective-icon"><i class="bi {{ item.icone }}"></i></span>
-              <div><strong>{{ item.titulo }}</strong><small>{{ item.tipo }} · {{ item.prazo|date:"d/m/Y" }}</small></div>
-              <span class="deadline-days {% if item.dias < 0 %}overdue{% endif %}">
-                {% if item.dias < 0 %}{{ item.dias|stringformat:"d"|cut:"-" }}d atrás{% elif item.dias == 0 %}Hoje{% else %}{{ item.dias }}d{% endif %}
-              </span>
-            </a>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="empty-state compact-empty">
-          <span class="empty-icon"><i class="bi bi-calendar2-check"></i></span>
-          <p>Nenhum prazo ativo para acompanhar.</p>
-        </div>
-      {% endif %}
-    </aside>
-
-    <section class="content-card study-chart-card">
-      <div class="card-heading">
-        <div>
-          <span class="eyebrow">Ritmo de estudos</span>
-          <h2>Últimas 8 semanas</h2>
-        </div>
-        <a class="text-link" href="{% url 'estudos:aulas' %}">Ver aulas</a>
-      </div>
-      <div class="study-chart" aria-label="Horas estudadas por semana">
-        <div class="chart-bars">
-          {% for semana in semanas_estudo %}
-            <div class="chart-column" title="{{ semana.horas }}h entre {{ semana.inicio|date:'d/m' }} e {{ semana.fim|date:'d/m' }}">
-              <strong>{% if semana.minutos %}{{ semana.horas }}h{% endif %}</strong>
-              <span style="height: {{ semana.altura }}%"></span>
-              <small>{{ semana.rotulo }}</small>
-            </div>
-          {% endfor %}
-        </div>
-        <p>O gráfico soma a duração das aulas e as sessões salvas pelo cronômetro.</p>
-      </div>
-    </section>
-
-    <section class="content-card empty-activity">
-      <div class="card-heading">
-        <div>
-          <span class="eyebrow">Evolução comprovada</span>
-          <h2>Evidências e conquistas</h2>
-        </div>
-        <a class="text-link" href="{% url 'projetos:lista' %}">Ver projetos</a>
-      </div>
-      {% if evidencias_recentes %}
-        <div class="dashboard-list">
-          {% for item in evidencias_recentes %}
-            <a href="{{ item.url }}">
-              <span class="recent-objective-icon"><i class="bi {{ item.icone }}"></i></span>
-              <div><strong>{{ item.titulo }}</strong><small>{{ item.tipo }} · {{ item.data|date:"d/m/Y" }}</small></div>
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="empty-state">
-          <span class="empty-icon"><i class="bi bi-activity"></i></span>
-          <strong>Registre sua evolução</strong>
-          <p>Capturas, entregas de projetos e certificações aparecerão aqui como conquistas.</p>
-        </div>
-      {% endif %}
-    </section>
-  </div>
 {% endblock %}
