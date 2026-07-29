@@ -24,7 +24,9 @@ from .services import recalcular_progresso
 
 
 def lista(request):
-    projetos = projetos_do_usuario(request.user).filter(arquivado_em__isnull=True)
+    projetos = projetos_do_usuario(request.user).filter(
+        arquivado_em__isnull=True
+    ).prefetch_related("tecnologias_vinculadas__tecnologia", "evidencias")
     termo = request.GET.get("q", "").strip()
     status = request.GET.get("status", "").strip()
     if termo:

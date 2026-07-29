@@ -16,8 +16,23 @@ from .services import criar_roadmap_do_pdf, recalcular_progresso_fase
 
 
 def lista(request):
-    roadmaps = roadmaps_do_usuario(request.user)
-    return render(request, "roadmap/lista.html", {"roadmaps": roadmaps})
+    roadmaps = roadmaps_do_usuario(request.user).prefetch_related(
+        "fases", "fases__etapas"
+    )
+    total = roadmaps.count()
+    resumo = {
+        "total": total,
+        "concluidos": roadmaps.filter(status="concluido").count(),
+        "em_andamento": roadmaps.filter(status="em_andamento").count(),
+        "proximos": roadmaps.exclude(
+            status__in=("concluido", "cancelado")
+        ).count(),
+    }
+    return render(
+        request,
+        "roadmap/lista.html",
+        {"roadmaps": roadmaps, "resumo": resumo},
+    )
 
 
 def importar_pdf(request):

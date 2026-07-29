@@ -1,62 +1,32 @@
 {% extends "base.html" %}
-
 {% block title %}Metas | Meu PDI{% endblock %}
-{% block topbar_title %}Metas{% endblock %}
-
 {% block content %}
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-3">
-      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Metas</li>
-    </ol>
-  </nav>
-
-  <div class="page-heading objective-heading">
-    <div>
-      <span class="eyebrow">Planejamento</span>
-      <h1>Metas com Prazos</h1>
-      <p>Objetivos definidos com datas, prioridades e progresso para manter seu desenvolvimento mensurável.</p>
-    </div>
-    <a class="btn btn-primary" href="{% url 'objetivos:criar' %}">
-      <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nova meta
+<section class="reference-page-heading with-action">
+  <div><span class="eyebrow">Planejamento</span><h1>Metas com Prazos</h1><p>Objetivos técnicos definidos com datas específicas, prioridades e status de progresso para manter meu desenvolvimento focado e mensurável.</p></div>
+  <a class="btn btn-primary" href="{% url 'objetivos:criar' %}"><i class="bi bi-plus-lg"></i> Adicionar Nova Meta</a>
+</section>
+<section class="template-stats">
+  <article class="template-card"><span class="stat-icon"><i class="bi bi-bullseye"></i></span><div><small>Total de Metas</small><strong>{{ pagina.paginator.count }}</strong></div></article>
+  <article class="template-card"><span class="stat-icon"><i class="bi bi-clock"></i></span><div><small>Em Progresso</small><strong>{{ resumo.ativos }}</strong></div></article>
+  <article class="template-card"><span class="stat-icon"><i class="bi bi-check-circle"></i></span><div><small>Concluídas</small><strong>{{ resumo.concluidos }}</strong></div></article>
+</section>
+<nav class="template-tabs" aria-label="Filtrar metas">
+  <a class="{% if not status_atual %}active{% endif %}" href="{% url 'objetivos:lista' %}">Todos</a>
+  <a class="{% if status_atual == 'planejado' %}active{% endif %}" href="?status=planejado">Planejado</a>
+  <a class="{% if status_atual == 'em_andamento' %}active{% endif %}" href="?status=em_andamento">Em progresso</a>
+  <a class="{% if status_atual == 'concluido' %}active{% endif %}" href="?status=concluido">Concluído</a>
+</nav>
+<section class="template-grid three">
+  {% for objetivo in pagina %}
+    <a class="template-card goal-template-card" href="{% url 'objetivos:detalhe' objetivo.id %}">
+      <header><span class="card-icon"><i class="bi bi-bullseye"></i></span><div><h2>{{ objetivo.titulo }}</h2><small>{{ objetivo.get_categoria_display }}</small></div></header>
+      <p>{{ objetivo.descricao|default:"Descreva esta meta para acompanhar sua evolução."|truncatechars:120 }}</p>
+      <div class="template-progress"><span style="width:{{ objetivo.progresso }}%"></span></div><small>{{ objetivo.progresso }}% concluído</small>
+      <div class="card-badges"><span class="template-pill">{{ objetivo.get_prioridade_display }}</span><span class="template-pill active">{{ objetivo.get_status_display }}</span></div>
+      <footer>{% if objetivo.status == 'concluido' %}<span class="success-text">✓ Meta concluída</span>{% elif objetivo.prazo %}<span><i class="bi bi-calendar3"></i> {{ objetivo.prazo|date:"d/m/Y" }}</span>{% else %}<span>Sem prazo definido</span>{% endif %}</footer>
     </a>
-  </div>
-
-  <section class="objective-summary" aria-label="Resumo dos objetivos">
-    <article><span>Ativos</span><strong>{{ resumo.ativos }}</strong><i class="bi bi-lightning-charge"></i></article>
-    <article><span>Progresso médio</span><strong>{{ resumo.progresso_medio }}%</strong><i class="bi bi-graph-up"></i></article>
-    <article><span>Concluídos</span><strong>{{ resumo.concluidos }}</strong><i class="bi bi-check2-circle"></i></article>
-    <article class="{% if resumo.atrasados %}has-alert{% endif %}"><span>Atrasados</span><strong>{{ resumo.atrasados }}</strong><i class="bi bi-calendar-x"></i></article>
-  </section>
-
-  <section class="filter-panel">
-    <form method="get"
-          hx-get="{% url 'objetivos:lista' %}"
-          hx-target="#objectiveResults"
-          hx-push-url="true"
-          hx-trigger="change delay:150ms, keyup changed delay:450ms from:input[type='search']">
-      <div class="filter-grid">
-        <div class="form-field filter-search">
-          <label for="{{ filtros_form.q.id_for_label }}">{{ filtros_form.q.label }}</label>
-          <div class="input-with-icon"><i class="bi bi-search"></i>{{ filtros_form.q }}</div>
-        </div>
-        <div class="form-field"><label for="{{ filtros_form.status.id_for_label }}">Status</label>{{ filtros_form.status }}</div>
-        <div class="form-field"><label for="{{ filtros_form.categoria.id_for_label }}">Categoria</label>{{ filtros_form.categoria }}</div>
-        <div class="form-field"><label for="{{ filtros_form.prioridade.id_for_label }}">Prioridade</label>{{ filtros_form.prioridade }}</div>
-        <div class="form-field"><label for="{{ filtros_form.prazo.id_for_label }}">Prazo</label>{{ filtros_form.prazo }}</div>
-        <div class="form-field"><label for="{{ filtros_form.ordenacao.id_for_label }}">Ordenar</label>{{ filtros_form.ordenacao }}</div>
-      </div>
-      <div class="filter-footer">
-        <label class="check-field">{{ filtros_form.arquivados }} <span>Mostrar arquivados</span></label>
-        <div>
-          <a class="btn btn-sm btn-light" href="{% url 'objetivos:lista' %}">Limpar filtros</a>
-          <button class="btn btn-sm btn-primary" type="submit">Aplicar filtros</button>
-        </div>
-      </div>
-    </form>
-  </section>
-
-  <div id="objectiveResults">
-    {% include "objetivos/_lista_resultados.html" %}
-  </div>
+  {% empty %}
+    <div class="reference-empty template-empty"><span><i class="bi bi-bullseye"></i></span><strong>Nenhuma meta encontrada.</strong><p>Cadastre sua primeira meta para começar.</p><a class="btn btn-primary" href="{% url 'objetivos:criar' %}">Adicionar meta</a></div>
+  {% endfor %}
+</section>
 {% endblock %}

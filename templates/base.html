@@ -48,19 +48,12 @@
         <div class="topbar-actions">
           <div class="dropdown d-none d-lg-block">
             <button class="icon-button profile-tools-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false" aria-label="Abrir ferramentas pessoais">
-              <i class="bi bi-person"></i>
+                    aria-expanded="false" aria-label="Abrir conta">
+              <span class="nav-avatar">{{ request.user.get_short_name|slice:":1"|upper }}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end portfolio-dropdown">
-              <li><a class="dropdown-item" href="{% url 'estudos:inicio' %}"><i class="bi bi-journal-bookmark"></i>Estudos</a></li>
-              <li><a class="dropdown-item" href="{% url 'indicadores:painel' %}"><i class="bi bi-bar-chart-line"></i>Indicadores</a></li>
-              <li><a class="dropdown-item" href="{% url 'revisoes:lista' %}"><i class="bi bi-arrow-repeat"></i>Revisões</a></li>
-              <li><a class="dropdown-item" href="{% url 'certificacoes:lista' %}"><i class="bi bi-award"></i>Certificações</a></li>
-              <li><a class="dropdown-item" href="{% url 'anotacoes:lista' %}"><i class="bi bi-pencil-square"></i>Anotações</a></li>
-              <li><a class="dropdown-item" href="{% url 'biblioteca:lista' %}"><i class="bi bi-collection"></i>Biblioteca</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'core:busca' %}"><i class="bi bi-search"></i>Buscar</a></li>
               <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-gear"></i>Editar perfil</a></li>
+              <li><form method="post" action="{% url 'usuarios:logout' %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-left"></i>Sair</button></form></li>
             </ul>
           </div>
           <button class="icon-button d-lg-none" id="mobileMenu" type="button"
@@ -88,16 +81,8 @@
         <a class="nav-item {% if request.resolver_match.app_name == 'projetos' %}active{% endif %}" href="{% url 'projetos:lista' %}"><i class="bi bi-kanban"></i><span>Contribuições</span></a>
         <a class="nav-item {% if request.resolver_match.namespace == 'roadmap' %}active{% endif %}" href="{% url 'roadmap:lista' %}"><i class="bi bi-signpost-split"></i><span>Roadmap</span></a>
         <a class="nav-item {% if request.resolver_match.app_name == 'competencias' %}active{% endif %}" href="{% url 'competencias:lista' %}"><i class="bi bi-people"></i><span>Soft Skills</span></a>
-        <p class="nav-section">Ferramentas pessoais</p>
-        <a class="nav-item {% if request.resolver_match.namespace == 'estudos' %}active{% endif %}" href="{% url 'estudos:inicio' %}"><i class="bi bi-journal-bookmark"></i><span>Estudos</span></a>
-        <a class="nav-item {% if request.resolver_match.app_name == 'indicadores' %}active{% endif %}" href="{% url 'indicadores:painel' %}"><i class="bi bi-bar-chart-line"></i><span>Indicadores</span></a>
-        <a class="nav-item" href="{% url 'revisoes:lista' %}"><i class="bi bi-arrow-repeat"></i><span>Revisões</span></a>
-        <a class="nav-item" href="{% url 'certificacoes:lista' %}"><i class="bi bi-award"></i><span>Certificações</span></a>
-        <a class="nav-item" href="{% url 'anotacoes:lista' %}"><i class="bi bi-pencil-square"></i><span>Anotações</span></a>
-        <a class="nav-item" href="{% url 'biblioteca:lista' %}"><i class="bi bi-collection"></i><span>Biblioteca</span></a>
         <p class="nav-section">Conta</p>
         <a class="nav-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-gear"></i><span>Perfil</span></a>
-        <a class="nav-item" href="{% url 'usuarios:alterar_senha' %}"><i class="bi bi-shield-lock"></i><span>Segurança</span></a>
         <form method="post" action="{% url 'usuarios:logout' %}">
           {% csrf_token %}
           <button class="nav-item nav-logout" type="submit"><i class="bi bi-box-arrow-left"></i><span>Sair</span></button>
@@ -120,6 +105,14 @@
         {% endif %}
         {% block content %}{% endblock %}
       </main>
+      <footer class="portfolio-footer">
+        <p>© {% now "Y" %} {{ request.user.get_short_name|default:"Meu PDI" }} — PDI pessoal</p>
+        <div>
+          {% if request.user.github_url %}<a href="{{ request.user.github_url }}" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>{% endif %}
+          {% if request.user.linkedin_url %}<a href="{{ request.user.linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>{% endif %}
+          <a href="{% url 'usuarios:perfil' %}">Editar perfil</a>
+        </div>
+      </footer>
     </div>
   </div>
 

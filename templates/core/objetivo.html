@@ -1,50 +1,37 @@
 {% extends "base.html" %}
-
-{% block title %}Objetivo de carreira | Meu PDI{% endblock %}
-{% block topbar_title %}Objetivo{% endblock %}
-
+{% block title %}Objetivo de Carreira | Meu PDI{% endblock %}
 {% block content %}
-  <section class="reference-page-heading">
-    <span class="eyebrow">Direção profissional</span>
-    <h1>Objetivo de Carreira</h1>
-    <p>O destino profissional que orienta suas metas, estudos, projetos e decisões.</p>
-  </section>
-
-  <section class="career-objective-card">
-    <span class="career-objective-icon"><i class="bi bi-compass"></i></span>
-    <div>
-      <small>Quero me tornar</small>
-      <h2>{{ request.user.cargo_desejado|default:"Defina o cargo que você deseja alcançar" }}</h2>
-      <p>{{ request.user.objetivo_principal|default:"Escreva por que esse objetivo é importante e como pretende alcançá-lo." }}</p>
-    </div>
-    <a class="btn btn-light" href="{% url 'usuarios:perfil' %}"><i class="bi bi-pencil me-2"></i>Editar objetivo</a>
-  </section>
-
-  <section class="reference-section">
-    <div class="reference-section-heading">
-      <div>
-        <h2>Metas que sustentam este objetivo</h2>
-        <p>Transforme a direção de carreira em passos concretos e mensuráveis.</p>
-      </div>
-      <a class="btn btn-primary" href="{% url 'objetivos:criar' %}"><i class="bi bi-plus-lg me-2"></i>Nova meta</a>
-    </div>
+<section class="reference-page-heading">
+  <span class="eyebrow">Trajetória</span>
+  <h1>Objetivo de Carreira</h1>
+  <p>Onde estou agora e onde quero chegar — minha evolução técnica e profissional planejada por etapas.</p>
+</section>
+<section class="career-layout">
+  <div class="career-main">
+    <div class="section-action"><a class="btn btn-primary" href="{% url 'objetivos:criar' %}"><i class="bi bi-plus-lg"></i> Adicionar Etapa</a></div>
     {% if metas %}
-      <div class="career-goal-grid">
+      <ol class="career-timeline">
         {% for meta in metas %}
-          <a class="career-goal-card" href="{% url 'objetivos:detalhe' meta.id %}">
-            <span>{{ meta.get_status_display }}</span>
-            <h3>{{ meta.titulo }}</h3>
-            <div class="progress"><div class="progress-bar" style="width: {{ meta.progresso }}%"></div></div>
-            <small>{{ meta.progresso }}% concluído{% if meta.prazo %} · até {{ meta.prazo|date:"d/m/Y" }}{% endif %}</small>
-          </a>
+          <li class="{% if meta.status == 'em_andamento' %}current{% endif %}">
+            <span class="timeline-dot"><i class="bi {% if meta.status == 'concluido' or meta.status == 'em_andamento' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i></span>
+            <a class="template-card timeline-card" href="{% url 'objetivos:detalhe' meta.id %}">
+              <div><span class="template-pill">Etapa {{ forloop.counter }}</span>{% if meta.status == 'em_andamento' %}<span class="template-pill active">Atual</span>{% endif %}</div>
+              <h2>{{ meta.titulo }}</h2>
+              <p>Foco: {{ meta.descricao|default:meta.motivo|default:"Defina o foco desta etapa."|truncatechars:160 }}</p>
+            </a>
+          </li>
         {% endfor %}
-      </div>
+      </ol>
     {% else %}
-      <div class="reference-empty compact">
-        <span><i class="bi bi-bullseye"></i></span>
-        <strong>Nenhuma meta cadastrada</strong>
-        <p>Crie sua primeira meta quando estiver pronto.</p>
-      </div>
+      <div class="reference-empty compact"><span><i class="bi bi-signpost"></i></span><strong>Nenhuma etapa cadastrada ainda.</strong><p>Adicione a primeira etapa da sua trajetória profissional.</p></div>
     {% endif %}
-  </section>
+  </div>
+  <aside class="career-aside template-card">
+    <div class="aside-title"><i class="bi bi-bullseye"></i><h2>Metas em andamento</h2></div>
+    {% if metas %}
+      <ul>{% for meta in metas|slice:":6" %}<li><span>◆</span><a href="{% url 'objetivos:detalhe' meta.id %}">{{ meta.titulo }}</a></li>{% endfor %}</ul>
+    {% else %}<p>Nenhuma meta cadastrada ainda.</p>{% endif %}
+    <a class="text-link" href="{% url 'usuarios:perfil' %}"><i class="bi bi-pencil"></i> Editar direção profissional</a>
+  </aside>
+</section>
 {% endblock %}

@@ -26,6 +26,7 @@ def lista(request):
         "pagina": pagina,
         "resumo": resumo_objetivos(request.user),
         "query_params": query_params.urlencode(),
+        "status_atual": request.GET.get("status", ""),
     }
     if request.headers.get("HX-Request") == "true":
         return render(request, "objetivos/_lista_resultados.html", context)

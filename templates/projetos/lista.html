@@ -1,58 +1,25 @@
 {% extends "base.html" %}
-
 {% block title %}Contribuições | Meu PDI{% endblock %}
-{% block topbar_title %}Contribuições{% endblock %}
-
 {% block content %}
-  <div class="page-heading project-heading">
-    <div>
-      <span class="eyebrow">Projetos & estudos</span>
-      <h1>Contribuições</h1>
-      <p>Projetos, estudos e entregas que constroem e comprovam sua jornada profissional.</p>
-    </div>
-    <a class="btn btn-primary" href="{% url 'projetos:criar' %}"><i class="bi bi-plus-lg me-2"></i>Novo projeto</a>
-  </div>
-
-  <form class="filter-bar" method="get">
-    <div class="filter-search"><i class="bi bi-search"></i><input type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar por projeto ou tecnologia"></div>
-    <select name="status" aria-label="Filtrar por status">
-      <option value="">Todos os status</option>
-      {% for valor, rotulo in status_choices %}<option value="{{ valor }}" {% if filtros.status == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
-    </select>
-    <button class="btn btn-light" type="submit">Filtrar</button>
-  </form>
-
-  <section class="project-grid">
-    {% for projeto in projetos %}
-      <article class="content-card project-card">
-        <div class="project-card-top">
-          <span class="project-symbol"><i class="bi bi-kanban"></i></span>
-          <span class="badge-soft status-{{ projeto.status }}">{{ projeto.get_status_display }}</span>
-        </div>
-        <div>
-          <h2><a href="{% url 'projetos:detalhe' projeto.id %}">{{ projeto.titulo }}</a></h2>
-          <p>{{ projeto.problema|default:projeto.solucao|default:"Descreva o problema que este projeto resolve."|truncatechars:120 }}</p>
-        </div>
-        <div class="project-progress">
-          <div><span>Progresso</span><strong>{{ projeto.progresso }}%</strong></div>
-          <div class="progress"><div class="progress-bar" style="width: {{ projeto.progresso }}%"></div></div>
-        </div>
-        <div class="project-tech-list">
-          {% for vinculo in projeto.tecnologias_vinculadas.all|slice:":4" %}<span>{{ vinculo.tecnologia.nome }}</span>{% empty %}<small>Sem tecnologias vinculadas</small>{% endfor %}
-        </div>
-        <footer>
-          <span><i class="bi bi-check2-square"></i>{{ projeto.tarefas_concluidas }}/{{ projeto.total_tarefas }} tarefas</span>
-          <span><i class="bi bi-patch-check"></i>{{ projeto.total_evidencias }} evidência{{ projeto.total_evidencias|pluralize }}</span>
-          {% if projeto.prazo %}<span><i class="bi bi-calendar3"></i>{{ projeto.prazo|date:"d/m/Y" }}</span>{% endif %}
-        </footer>
-      </article>
-    {% empty %}
-      <div class="content-card empty-state project-empty">
-        <span class="empty-icon"><i class="bi bi-kanban"></i></span>
-        <strong>Nenhum projeto criado</strong>
-        <p>Comece com uma entrega pequena que demonstre o que você está aprendendo.</p>
-        <a class="btn btn-primary" href="{% url 'projetos:criar' %}">Criar primeiro projeto</a>
-      </div>
-    {% endfor %}
-  </section>
+<section class="reference-page-heading with-action">
+  <div><span class="eyebrow">Projetos & estudos</span><h1>Contribuições</h1><p>Coleção de projetos, estudos e participações que constroem minha jornada.</p></div>
+  <a class="btn btn-primary" href="{% url 'projetos:criar' %}"><i class="bi bi-plus-lg"></i> Adicionar Contribuição</a>
+</section>
+<nav class="template-tabs" aria-label="Filtrar contribuições">
+  <a class="{% if not filtros.q %}active{% endif %}" href="{% url 'projetos:lista' %}">Todas</a>
+  <a class="{% if filtros.q == 'Backend' %}active{% endif %}" href="?q=Backend">Backend</a><a class="{% if filtros.q == 'Cloud' %}active{% endif %}" href="?q=Cloud">Cloud</a><a class="{% if filtros.q == 'Infra' %}active{% endif %}" href="?q=Infra">Infra</a>
+  <a class="{% if filtros.q == 'Estudos' %}active{% endif %}" href="?q=Estudos">Estudos</a><a class="{% if filtros.q == 'Projetos' %}active{% endif %}" href="?q=Projetos">Projetos</a><a class="{% if filtros.q == 'Comunidade' %}active{% endif %}" href="?q=Comunidade">Comunidade</a>
+</nav>
+<section class="template-grid three">
+  {% for projeto in projetos %}
+    <a class="template-card contribution-card" href="{% url 'projetos:detalhe' projeto.id %}">
+      <header><span class="card-icon"><i class="bi bi-stars"></i></span><div><h2>{{ projeto.titulo }}</h2><small>Projetos</small></div><span class="template-pill active">{{ projeto.get_status_display }}</span></header>
+      <p>{{ projeto.problema|default:projeto.solucao|default:"Descreva esta contribuição."|truncatechars:150 }}</p>
+      <div class="technology-list">{% for vinculo in projeto.tecnologias_vinculadas.all %}<span>{{ vinculo.tecnologia.nome }}</span>{% empty %}<span>Em construção</span>{% endfor %}</div>
+      <div class="impact-list"><h3>Impactos</h3><ul>{% if projeto.resultado %}<li>{{ projeto.resultado|truncatechars:120 }}</li>{% endif %}<li>{{ projeto.total_evidencias }} evidência{{ projeto.total_evidencias|pluralize }} registrada{{ projeto.total_evidencias|pluralize }}</li></ul></div>
+    </a>
+  {% empty %}
+    <div class="reference-empty template-empty"><span><i class="bi bi-stars"></i></span><strong>Nenhuma contribuição cadastrada.</strong><p>Registre projetos, estudos e participações quando estiver pronto.</p><a class="btn btn-primary" href="{% url 'projetos:criar' %}">Adicionar contribuição</a></div>
+  {% endfor %}
+</section>
 {% endblock %}

@@ -1,66 +1,23 @@
 {% extends "base.html" %}
-
-{% block title %}Roadmaps | Meu PDI{% endblock %}
-{% block topbar_title %}Roadmap{% endblock %}
-
+{% block title %}Roadmap Técnico | Meu PDI{% endblock %}
 {% block content %}
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-3">
-      <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Roadmaps</li>
-    </ol>
-  </nav>
-
-  <div class="page-heading roadmap-page-heading">
-    <div>
-      <span class="eyebrow">Do conteúdo para a ação</span>
-      <h1>Meus roadmaps</h1>
-      <p>Transforme um PDF em fases, etapas e entregas práticas organizadas.</p>
-    </div>
-    <a class="btn btn-primary" href="{% url 'roadmap:importar_pdf' %}">
-      <i class="bi bi-file-earmark-pdf me-2"></i>Criar a partir de PDF
+<section class="reference-page-heading with-action">
+  <div><span class="eyebrow">Stack</span><h1>Roadmap Técnico</h1><p>Tecnologias que pratico, estudo e tenho como próximos passos.</p></div>
+  <a class="btn btn-primary" href="{% url 'roadmap:importar_pdf' %}"><i class="bi bi-plus-lg"></i> Adicionar Área</a>
+</section>
+<section class="roadmap-summary">
+  <article><small>Áreas concluídas</small><strong>{{ resumo.concluidos }}<span> / {{ resumo.total }}</span></strong></article>
+  <article><small>Em andamento</small><strong>{{ resumo.em_andamento }}<span> / {{ resumo.total }}</span></strong></article>
+  <article><small>Próximos passos</small><strong>{{ resumo.proximos }}<span> áreas</span></strong></article>
+</section>
+<section class="roadmap-areas">
+  {% for roadmap in roadmaps %}
+    <a class="template-card roadmap-area" href="{% url 'roadmap:detalhe' roadmap.id %}">
+      <header><span class="card-icon"><i class="bi bi-code-slash"></i></span><h2>{{ roadmap.nome }}</h2><i class="bi bi-pencil"></i></header>
+      {% if roadmap.fases.all %}<div class="technology-list">{% for fase in roadmap.fases.all %}<span class="{% if fase.status == 'concluida' %}done{% elif fase.status == 'em_andamento' %}learning{% endif %}"><i class="bi bi-circle-fill"></i>{{ fase.titulo }}</span>{% endfor %}</div>{% else %}<p>{{ roadmap.descricao|default:"Abra esta área para cadastrar etapas e tecnologias." }}</p>{% endif %}
     </a>
-  </div>
-
-  {% if roadmaps %}
-    <section class="roadmap-grid">
-      {% for roadmap in roadmaps %}
-        <article class="roadmap-card">
-          <div class="roadmap-card-head">
-            <span class="roadmap-source-icon"><i class="bi bi-signpost-split"></i></span>
-            <div class="card-badges">
-              {% if roadmap.gerado_de_pdf %}<span class="badge-soft"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</span>{% endif %}
-              <span class="badge-soft status-{{ roadmap.status }}">{{ roadmap.get_status_display }}</span>
-            </div>
-          </div>
-          <div class="roadmap-card-body">
-            <h2><a href="{% url 'roadmap:detalhe' roadmap.id %}">{{ roadmap.nome }}</a></h2>
-            <p>{{ roadmap.descricao|truncatechars:150 }}</p>
-            {% if roadmap.objetivo %}
-              <span class="roadmap-related"><i class="bi bi-bullseye"></i>{{ roadmap.objetivo.titulo|truncatechars:60 }}</span>
-            {% endif %}
-          </div>
-          <div class="roadmap-card-stats">
-            <div><strong>{{ roadmap.fases.count }}</strong><span>fases</span></div>
-            <div><strong>{{ roadmap.progresso }}%</strong><span>progresso</span></div>
-            <div><strong>{{ roadmap.prazo|date:"d/m/Y"|default:"-" }}</strong><span>prazo</span></div>
-          </div>
-          <div class="roadmap-card-progress">
-            <div class="progress" role="progressbar" aria-label="Progresso de {{ roadmap.nome }}"
-                 aria-valuenow="{{ roadmap.progresso }}" aria-valuemin="0" aria-valuemax="100">
-              <div class="progress-bar" style="width: {{ roadmap.progresso }}%"></div>
-            </div>
-          </div>
-          <footer><a href="{% url 'roadmap:detalhe' roadmap.id %}">Abrir roadmap <i class="bi bi-arrow-right"></i></a></footer>
-        </article>
-      {% endfor %}
-    </section>
-  {% else %}
-    <section class="content-card empty-state roadmap-empty">
-      <span class="empty-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
-      <strong>Envie seu primeiro PDF</strong>
-      <p>O Meu PDI vai ler os títulos e tópicos do documento e montar um roadmap inicial para revisão.</p>
-      <a class="btn btn-primary" href="{% url 'roadmap:importar_pdf' %}">Escolher PDF</a>
-    </section>
-  {% endif %}
+  {% empty %}
+    <div class="reference-empty template-empty"><span><i class="bi bi-code-slash"></i></span><strong>Nenhuma área cadastrada.</strong><p>Crie o seu roadmap técnico a partir de um PDF.</p><a class="btn btn-primary" href="{% url 'roadmap:importar_pdf' %}">Adicionar área</a></div>
+  {% endfor %}
+</section>
 {% endblock %}
