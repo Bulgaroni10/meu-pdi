@@ -4,6 +4,7 @@
   const sidebar = document.getElementById("sidebar");
   const backdrop = document.getElementById("sidebarBackdrop");
   const mobileMenu = document.getElementById("mobileMenu");
+  const mobileMenuClose = document.getElementById("mobileMenuClose");
   const collapse = document.getElementById("sidebarCollapse");
   const themeToggle = document.getElementById("themeToggle");
   const globalSearchInput = document.getElementById("globalSearchInput");
@@ -44,6 +45,7 @@
     document.body.classList.toggle("nav-open", open);
   });
   backdrop?.addEventListener("click", closeMobileMenu);
+  mobileMenuClose?.addEventListener("click", closeMobileMenu);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeMobileMenu();
     const editing =
